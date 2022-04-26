@@ -56,13 +56,14 @@ def plot_patch(mask):
 
 if __name__=='__main__':
     from skimage.filters import median
-    
+    from skimage.transform import rotate
     # generates an example
     image = np.zeros((200,200))
 
     length = 80
     width = 40
     image[50:50+length,80:80+width] = 1
+    image = rotate(image,20)
     # gives it round edges
     image = median(image,np.ones((20,20)))
     
