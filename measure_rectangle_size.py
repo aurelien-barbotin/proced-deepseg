@@ -63,7 +63,7 @@ if __name__=='__main__':
     length = 80
     width = 40
     image[50:50+length,80:80+width] = 1
-    image = rotate(image,20)
+    image = rotate(image,30)
     # gives it round edges
     image = median(image,np.ones((20,20)))
     
@@ -75,4 +75,29 @@ if __name__=='__main__':
     plt.imshow(image,cmap='gray')   
     plot_patch(image)
     
+    # second exemple: on a labeled image with 2 elements
+    image2 = np.zeros((400,400))
+
+    length = 80
+    width = 40
+    # creates first object. gives it label 1
+    image2[50:50+length,80:80+width] = 1
+    image2 = rotate(image2,30)
     
+    # creates second, smaller object. Gives it label 2
+    image2[ 200:200+length//2,150:150+width//2] = 2
+    
+    # gives it round edges
+    image2 = median(image2,np.ones((20,20)))
+    
+    plt.figure()
+    plt.imshow(image2)
+    
+    nlabels = 2 # there are 2 different labels in our image: 1 and 2
+    for j in range(nlabels):
+        # when j=1, selects only pixels that have value 1 e.g that belong to object 1
+        image_oneobject = image2==j+1
+        
+        length = get_length_rect(image_oneobject)
+        print('lobject with abel {} has measured length of {:.2f}'.format(
+            j+1, length))
