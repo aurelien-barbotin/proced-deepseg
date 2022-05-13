@@ -17,6 +17,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from csbdeep.utils import Path, normalize
 
+from PIL import Image
 plt.close('all')
 QC_model_path = """/home/aurelienb/Documents/Projects/2022_02_Louise/models/\
 Cellpose_CycloFosfo_selval2im_3000e/cellpose_residual_on_style_on_concatenation\
@@ -70,13 +71,13 @@ proba_sd = out_sd[1][0]
 labels = labels.astype(float)
 
 labels[labels==0]=np.nan
-plt.figure()
-plt.subplot(131)
-plt.imshow(images[n0])
-plt.subplot(132)
-plt.imshow(labels%20,cmap="tab20")
-plt.subplot(133)
-plt.imshow(proba_sd, cmap = "RdYlGn")
-plt.title('probability map')
-plt.suptitle("Stardist")
-plt.colorbar()
+fig,axes = plt.subplots(1,3, sharex=True,sharey=True)
+
+axes[0].imshow(images[n0])
+
+axes[1].imshow(labels%20,cmap="tab20")
+
+proba_reshaped = np.array(Image.fromarray(proba_sd).resize(images[n0].shape[::-1]))
+axes[2].imshow(np.array(porba_reshaped, cmap = "RdYlGn")
+axes[2].set_title('probability map')
+
