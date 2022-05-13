@@ -71,6 +71,8 @@ proba_sd = out_sd[1][0]
 labels = labels.astype(float)
 
 labels[labels==0]=np.nan
+
+
 fig,axes = plt.subplots(1,3, sharex=True,sharey=True)
 
 axes[0].imshow(images[n0])
@@ -78,6 +80,6 @@ axes[0].imshow(images[n0])
 axes[1].imshow(labels%20,cmap="tab20")
 
 proba_reshaped = np.array(Image.fromarray(proba_sd).resize(images[n0].shape[::-1]))
-axes[2].imshow(np.array(porba_reshaped, cmap = "RdYlGn")
+axes[2].imshow(np.array(proba_reshaped), cmap = "RdYlGn")
 axes[2].set_title('probability map')
 
