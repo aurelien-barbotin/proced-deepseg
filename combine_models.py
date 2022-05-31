@@ -19,13 +19,11 @@ from csbdeep.utils import Path, normalize
 
 from PIL import Image
 plt.close('all')
-QC_model_path = """/home/aurelienb/Documents/Projects/2022_02_Louise/models/\
-Cellpose_CycloFosfo_selval2im_3000e/cellpose_residual_on_style_on_concatenation\
-_off_train_folder_2022_05_10_07_32_50.203772"""
+QC_model_path = """/home/aurelienb/Documents/Projects/2022_02_Louise/models/Cellpose_GM_FINAL/cellpose_residual_on_style_on_concatenation_off_train_folder_2022_05_18_13_33_18.490485"""
 
 # -------- cellpose ---------------
 
-path_images = "/home/aurelienb/Documents/Projects/2022_02_Louise/sample_images/"
+path_images = "/home/aurelienb/Documents/Projects/2022_02_Louise/resized_testim/"
 images = glob.glob(path_images+'*.tif')
 images = [imread(w) for w in images]
 channels=[[0,0]]
@@ -62,7 +60,7 @@ plt.suptitle('Cellpose')
 # ------- Stardist ---------
 
 path_model_stardist = "/home/aurelienb/Documents/Projects/2022_02_Louise/models/"
-model_sd = StarDist2D(None,name="StarDist_GM100_selval",basedir = path_model_stardist)
+model_sd = StarDist2D(None,name="StarDist_GM_FINAL",basedir = path_model_stardist)
 
 out_sd = model_sd.predict_instances(normalize(images[n0],pmin=0,pmax=99.8), return_predict = True)
 labels, polygons = out_sd[0]
