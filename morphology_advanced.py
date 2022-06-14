@@ -24,6 +24,7 @@ from scipy.stats import linregress
 from skimage.draw import polygon, line
 
 from skimage.graph import route_through_array
+
 def extract_roi(mask, margin=8):
     xx,yy=np.where(mask==1)
     xmin = xx.min()
@@ -36,6 +37,12 @@ def extract_roi(mask, margin=8):
     return (xmin,ymin,xmax,ymax), out
 
 def get_skel_extrema(skel):
+    """Given a skeletonized image, finds the position of its extremities
+    (hopefully only 2)
+    Parameters:
+        skel (ndarray): skeletonized image
+    Returns:
+        ndarray: coordinates of extremities of the skeleton"""
     if skel.dtype==bool:
         skel = skel.astype(int)
     connectivity = convolve(skel.astype(int),np.ones((3,3)))*skel.astype(int)
@@ -45,6 +52,16 @@ def sort_list_fromref(to_sort, ref):
     return [x for _, x in sorted(zip(ref,to_sort))]
 
 def get_neighbouring_points(xs, ys, xy_ref, dist = 30):
+    """Finds all the points within a list of coordinates that are in the vicinity
+    of another point
+    Parameters:
+        xs (list): x coordinates
+        ys (list): y coordinates
+        xy_ref (list): (x,y) coordinates of the centre 
+        dist (float): distance within which points are considered to be in the 
+            vicinity of the ref
+    Returns:
+        list: xs,ys: list of coordinates of points in the neighbourhood of the ref"""
     xs = np.asarray(xs)
     ys = np.asarray(ys)
     dists = np.sqrt((xs-xy_ref[0])**2 + (ys - xy_ref[1])**2)
@@ -65,7 +82,11 @@ def prolongate_skel(skel, xy_ref, t_ext = -2, neighbour_dist = 30):
     Parameters:
         skel (ndarray): the skeletton in int format
         xy_ref (list): x, y values of the extremum from which we want to prolongate
-        t_ext (int): has to be negative, how far we want to prolongate"""
+        t_ext (int): has to be negative, how far we want to prolongate
+        beighbour_dist (float): distance to the ref point within which we look
+            for neighbours
+    Returns:
+        ndarray: the prolongated skeleton"""
     xs, ys = (skel>0).nonzero()
     xn, yn = get_neighbouring_points(xs,ys,xy_ref, dist = neighbour_dist)
     txn = np.linspace(0,1,xn.size)
@@ -90,7 +111,18 @@ def unzoom_skel(skel_zoomed,factor):
 
 def cell_dimensions_skel(mask, upsampling_factor = 5,
                          plot_in_context = True, plot_single=False):
-    """Measures dimensions of a rod-shaped mask using skeletonization"""
+    """Measures dimensions of a rod-shaped mask using skeletonization.
+    Parameters:
+        mask (ndarray): binary mask, represents a rod-shaped bacteria which dimensions
+            we are looking for
+        upsampling_factor (int): Masks are upsampled by this factor to increase
+            method precision. Higher coefficient yields slower but more accurate
+            results.
+        plot_in_context (bool): if Ture, plots the resulting skeleton
+        plot_single (bool): if True, plots the upsampled image of the mask
+            along its skeleton. Useful for debuging purpose
+    Returns:
+        list: [cell_width, cell_length]"""
 
     margin = 2*upsampling_factor
     submask_coords, submask = extract_roi(mask, margin = margin)
