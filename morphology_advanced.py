@@ -76,8 +76,11 @@ def prolongate_skel(skel, xy_ref, t_ext = -2, neighbour_dist = 30):
     c1 = outliny.slope*t_ext + outliny.intercept
     
     rr,cc = line(xy_ref[1], xy_ref[0], int(c1), int(r1))
+    msk1 = np.logical_and(rr>=0,rr<skel.shape[1])
+    msk2 = np.logical_and(cc>=0,cc<skel.shape[0])
+    msk = np.logical_and(msk1, msk2)
     skel=skel.astype(int)
-    skel[cc,rr] = 2
+    skel[cc[msk],rr[msk]] = 2
     return skel
 
 def unzoom_skel(skel_zoomed,factor):
@@ -106,8 +109,10 @@ def cell_dimensions_skel(mask, upsampling_factor = 5,
     
     x_refs, y_refs = get_skel_extrema(skel)
     
-    skel = prolongate_skel(skel, [x_refs[0],y_refs[0]])
-    skel = prolongate_skel(skel, [x_refs[1],y_refs[1]])
+    skel = prolongate_skel(skel, [x_refs[0],y_refs[0]], 
+                           neighbour_dist=6*upsampling_factor)
+    skel = prolongate_skel(skel, [x_refs[1],y_refs[1]],
+                           neighbour_dist=6*upsampling_factor)
     
     submask_zoomed = zoom(submask.astype(int),upsampling_factor)
     
@@ -157,12 +162,13 @@ if __name__=='__main__':
     labels.pop(0)
     for nce in labels:
         mask = img==nce
-        width, length = cell_dimensions_skel(mask)
+        width, length = cell_dimensions_skel(mask,upsampling_factor=5)
         widths.append(width)
         lengths.append(length)
     
     lab = np.random.choice(labels)
-    width, length = cell_dimensions_skel(img==lab,plot_in_context=False,
+    # lab=699
+    width, length = cell_dimensions_skel(img==lab,upsampling_factor=5,plot_in_context=False,
                                          plot_single = True)
     
     plt.figure()
