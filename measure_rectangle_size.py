@@ -34,6 +34,7 @@ def get_length_rect(msk, plot=False):
         cv2.imshow("mask and approximation",mask)
     return max(rect[1])
 
+
 def plot_patch(mask):
     """Method to plot the rectangle detected from a mask on the current axis."""
     mask = mask.astype(np.uint8)

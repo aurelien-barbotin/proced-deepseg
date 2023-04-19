@@ -10,20 +10,20 @@ main interface/Bacteria/Morphologies/contour
 """
 
 import numpy as np
-import matplotlib.pyplot as plt
+import matplotlib.pyplot as pxlt
 
+import cv2
 from skimage.morphology import medial_axis
-from skimage.graph import shortest_path
 from skimage.measure import find_contours
 
-from scipy import interpolate
-from scipy.ndimage import median_filter, gaussian_filter, zoom, convolve
+from scipy.ndimage import gaussian_filter, zoom, convolve
 from tifffile import imread
 from scipy.stats import linregress
 
 from skimage.draw import polygon, line
 
 from skimage.graph import route_through_array
+import matplotlib.pyplot as plt
 
 def extract_roi(mask, margin=8):
     xx,yy=np.where(mask==1)
@@ -110,7 +110,7 @@ def unzoom_skel(skel_zoomed,factor):
     return (skel_unzoomed>0)
 
 def cell_dimensions_skel(mask, upsampling_factor = 5,
-                         plot_in_context = True, plot_single=False):
+                         plot_in_context = True, plot_single=False, width_percentile = 90):
     """Measures dimensions of a rod-shaped mask using skeletonization.
     Parameters:
         mask (ndarray): binary mask, represents a rod-shaped bacteria which dimensions
@@ -121,6 +121,9 @@ def cell_dimensions_skel(mask, upsampling_factor = 5,
         plot_in_context (bool): if Ture, plots the resulting skeleton
         plot_single (bool): if True, plots the upsampled image of the mask
             along its skeleton. Useful for debuging purpose
+            width_percentile (int or float): defines the with as the n-th 
+                percentile of all widths measured along the cell. Higher percentile
+                means higher width for a given mask
     Returns:
         list: [cell_width, cell_length]"""
 
@@ -129,7 +132,9 @@ def cell_dimensions_skel(mask, upsampling_factor = 5,
     
     new_img = zoom(gaussian_filter(submask.astype(float),
                                    sigma=upsampling_factor*4/5),upsampling_factor)
-    poly = find_contours(new_img,level=0.5)[0]
+
+    poly = find_contours(new_img/new_img.max(),level=0.5)[0]
+
     rr, cc = polygon(poly[:, 0], poly[:, 1], new_img.shape)
     out = np.zeros_like(new_img)
     out[rr, cc] = 1
@@ -137,7 +142,7 @@ def cell_dimensions_skel(mask, upsampling_factor = 5,
     skel, dist = medial_axis(out, return_distance = True)
     # factor 2 because measures distance to an edge
     cell_widths = 2*dist[skel]/upsampling_factor
-    cell_width = np.median(cell_widths)
+    cell_width = np.percentile(cell_widths, width_percentile)
     
     x_refs, y_refs = get_skel_extrema(skel)
     
@@ -173,6 +178,27 @@ def cell_dimensions_skel(mask, upsampling_factor = 5,
                                      geometric=True)
 
     return cell_width, cell_length
+
+def get_dimensions_rect(msk, plot=False):
+    """Gets the width and length of a mask using minarea rectangle"""
+    mask = msk.copy()
+    mask = mask.astype(np.uint8)
+    if np.count_nonzero(mask)<2:
+        return 0
+    cnt,hierarchy = cv2.findContours(mask, 1, 2)
+    cnt = np.vstack(cnt).squeeze()
+    
+    # returns the min area rectangle: ( (x_centre, y_centre), (x_size, y_size), rotation_angle )
+    rect = cv2.minAreaRect(cnt)
+    if plot:
+        box = cv2.boxPoints(rect) 
+        box = np.int0(box)
+        
+        # converts image to BGR (=3 color channels) for display purpose
+        mask = cv2.cvtColor(mask, cv2.COLOR_GRAY2BGR)
+        cv2.drawContours(mask,[box],0,(0,0,255),1)
+        cv2.imshow("mask and approximation",mask)
+    return min(rect[1]), max(rect[1])
 
 if __name__=='__main__':
     plt.close('all')

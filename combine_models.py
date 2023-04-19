@@ -24,7 +24,7 @@ QC_model_path = """/home/aurelienb/Documents/Projects/2022_02_Louise/models/Cell
 # -------- cellpose ---------------
 
 path_images = "/home/aurelienb/Documents/Projects/2022_02_Louise/resized_testim/"
-images = glob.glob(path_images+'*.tif')
+images = glob.glob(path_images+'*.tif')[:2]
 images = [imread(w) for w in images]
 channels=[[0,0]]
 
@@ -57,6 +57,8 @@ plt.title('probability map')
 plt.colorbar()
 plt.suptitle('Cellpose')
 
+
+plt.show()
 # ------- Stardist ---------
 
 path_model_stardist = "/home/aurelienb/Documents/Projects/2022_02_Louise/models/"
@@ -81,3 +83,4 @@ proba_reshaped = np.array(Image.fromarray(proba_sd).resize(images[n0].shape[::-1
 axes[2].imshow(np.array(proba_reshaped), cmap = "RdYlGn")
 axes[2].set_title('probability map')
 
+plt.show()
