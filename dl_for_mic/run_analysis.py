@@ -32,7 +32,7 @@ folders_labels = glob.glob(path_labels+"/*/")
 
 PSIZE= float(input("Please specify the pixel size of your images in µm: "))
 
-plot = True
+plot = False
 all_dfs = []
 for folder in folders_labels:
     print("Processing folder {}".format(folder))

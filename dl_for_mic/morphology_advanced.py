@@ -10,7 +10,7 @@ main interface/Bacteria/Morphologies/contour
 """
 
 import numpy as np
-import matplotlib.pyplot as pxlt
+import matplotlib.pyplot as plt
 
 import cv2
 from skimage.morphology import medial_axis
@@ -23,7 +23,6 @@ from scipy.stats import linregress
 from skimage.draw import polygon, line
 
 from skimage.graph import route_through_array
-import matplotlib.pyplot as plt
 
 def extract_roi(mask, margin=8):
     xx,yy=np.where(mask==1)
