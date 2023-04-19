@@ -1,3 +1,7 @@
 scikit-image
-python-opencv
+opencv-python
 cellpose
+matplotlib
+pandas
+numpy
+openpyxl
