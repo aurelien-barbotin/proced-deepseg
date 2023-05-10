@@ -18,11 +18,11 @@ from dl_for_mic.morphology_advanced import get_dimensions_rect
 plt.close('all')
 
 datapath="/run/user/1000/gvfs/smb-share:server=data.micalis.com,share=proced/microscopy/NIKON/Dimitri/230428 contraste phase/ilastik images/masks/"
-datapath="/run/user/1000/gvfs/smb-share:server=data.micalis.com,share=proced/microscopy/NIKON/Dimitri/230504 bip induction 30min timelapse/pour_segmentationmasks/"
+# datapath="/run/user/1000/gvfs/smb-share:server=data.micalis.com,share=proced/microscopy/NIKON/Dimitri/230504 bip induction 30min timelapse/pour_segmentationmasks/"
 files = glob.glob(datapath+"/*.tif")
 
-xn1 = 1
-xn2 = 2
+xn1 = 2
+xn2 = 4
 fig1,axes1 = plt.subplots(xn1,xn2,sharex=True,sharey=True) # widths
 fig2,axes2 = plt.subplots(xn1,xn2,sharex=True, sharey = True) # lengths
 fig3,axes3 = plt.subplots(xn1,xn2,sharex=True, sharey = True) # areas
@@ -101,8 +101,9 @@ for nfile, file in enumerate(files):
     ax1.errorbar(fr,means['widths'],yerr=stds['widths'])
     ax2.errorbar(fr,means['lengths'],yerr=stds['lengths'])
     ax3.errorbar(fr,means['areas'],yerr=stds['areas'])
-    ax4.plot(fr,means['area_all'])
+    ax4.plot(fr,means['area_all']/means['area_all'][0])
     ax5.plot(fr,means['nr_cells'])
+    
     ax1.set_title(name)
     ax2.set_title(name)
     ax3.set_title(name)
@@ -114,4 +115,23 @@ for nfile, file in enumerate(files):
     ax1.set_ylabel("Width [px]")
     ax2.set_ylabel("Length [px]")
     ax3.set_ylabel("Area [px]")
+    
+    # export summaries
+    out={}
+    out["frame nr"] = fr
+    out["width mean"] = means['widths']
+    out["width std"] = stds['widths']
+    
+    out["length mean"] = means['lengths']
+    out["length std"] = stds['lengths']
+    
+    out["cell area mean"] = means['areas']
+    out["cell area std"] = stds['areas']
+    
+    # no need to take the means as they all have the same value
+    out["All cells area"] = means['area_all']
+    out["nr cells"] = means['nr_cells']
+    
+    df = pd.DataFrame(out)
+    df.to_excel(file[:-4]+"_summaries.xlsx")
 
