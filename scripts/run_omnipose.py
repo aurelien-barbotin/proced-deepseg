@@ -32,8 +32,8 @@ from pathlib import Path
 import os
 from cellpose_omni import io
 
-datapath="/run/user/1000/gvfs/smb-share:server=data.micalis.com,share=proced/microscopy/NIKON/Dimitri/230504 bip induction 30min timelapse/pour_segmentation"
-basedir = os.path.join(Path.cwd().parent,'test_files')
+datapath="/run/user/1000/gvfs/smb-share:server=data.micalis.com,share=proced/microscopy/ZEISS_ELYRA7/Joseph/230314/test_segmentation/"
+# basedir = os.path.join(Path.cwd().parent,'test_files')
 # files = io.get_image_files(basedir)
 
 files = glob.glob(datapath+"/*.tif")

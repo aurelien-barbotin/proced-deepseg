@@ -14,8 +14,8 @@ from skimage.io import imsave,imread
 from skimage.transform import resize,rescale
 
 import matplotlib.pyplot as plt
-path = '/run/user/1000/gvfs/smb-share:server=data.micalis.com,share=proced/proced/5- User Exchange folders/Aurelien_MerveNur/Microscopy acq_Growth curve/230406/'
-filename = path+'subframe.tif'
+path = '/run/user/1000/gvfs/smb-share:server=data.micalis.com,share=proced/microscopy/ZEISS_ELYRA7/Joseph/2023_06_02/'
+filename = path+'Substack (1-360-10).tif kept stack.tif'
 
 gamma=0.2
 # read image using your favorite package
