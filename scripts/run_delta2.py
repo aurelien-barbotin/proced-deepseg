@@ -17,8 +17,8 @@ import delta
 delta.config.load_config(presets="2D")
 
 # Use eval movie as example (or replace by None for interactive selection):
-file_path = "/run/user/1000/gvfs/smb-share:server=data.micalis.com,share=proced/microscopy/ZEISS_ELYRA7/Joseph/2023_06_02/substack/Substack (1-360-10).tif"
-
+file_path = "/run/user/1000/gvfs/smb-share:server=data.micalis.com,share=proced/microscopy/ZEISS_ELYRA7/Joseph/Data Extraction/del-gacS/del-gacS_TL_BF_100ms_15s interval_760cycles_1_(14-03-23).czi"
+file_path="/run/user/1000/gvfs/smb-share:server=data.micalis.com,share=proced/microscopy/ZEISS_ELYRA7/Joseph/Data Extraction/del-gacS/Substack (1-760-2)_downsampled.tif"
 # Init reader (use bioformats=True if working with nd2, czi, ome-tiff etc):
 xpreader = delta.utils.xpreader(file_path,use_bioformats=True)
 
