@@ -59,7 +59,6 @@ for k in range(len(imgs)):
 from cellpose_omni import models
 from cellpose_omni.models import MODEL_NAMES
 
-import os
 import tifffile
 
 savepath=datapath+"masks/"
