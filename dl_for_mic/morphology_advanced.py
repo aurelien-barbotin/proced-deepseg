@@ -243,9 +243,12 @@ if __name__=='__main__':
     plt.imshow(mask)"""
     
 
-def extract_morphology_from_movie(datapath):
+def extract_morphology_from_movie(datapath, pixel_size=1):
     """Given apath containing segmented movies, extracts cell morphology (width, length, area)
-    using the rectangle method and saves results in an excel file"""
+    using the rectangle method and saves results in an excel file.
+    Parameters:
+        datapath (str): path to folder containing the excel files
+        pixel_size (float): pixel size in microns."""
     files = glob.glob(datapath+"/*.tif")
     
     # each stack
@@ -263,12 +266,12 @@ def extract_morphology_from_movie(datapath):
             if vals[0]!=0:
                 raise ValueError('No background in this dataset?')
             vals = vals[1:]
-            out_dict = {"widths":[],
-                        "lengths":[],
+            out_dict = {"widths [µm]":[],
+                        "lengths [µm]":[],
+                        "areas [µm^2]":[],
+                        "area_all [µm^2]":[],
                         "frame nr":[],
                         "index":[],
-                        "areas":[],
-                        "area_all":[],
                         'nr_cells':[]}
             # individual cell within a frame
             a1 = np.count_nonzero(frame>0)
@@ -276,13 +279,15 @@ def extract_morphology_from_movie(datapath):
             for val in vals:
                 msk = frame==val
                 wt, lt = get_dimensions_rect(msk)
-                out_dict["widths"].append(wt)
-                out_dict["lengths"].append(lt)
+                wt = wt*pixel_size
+                lt = lt*pixel_size
+                out_dict["widths [µm]"].append(wt)
+                out_dict["lengths [µm]"].append(lt)
+                out_dict["areas [µm^2]"].append(np.count_nonzero(msk)*pixel_size**2)
+                out_dict["area_all [µm^2]"].append(a1*pixel_size**2)
+                
                 out_dict["frame nr"].append(j)
                 out_dict["index"].append(val)
-                out_dict["areas"].append(np.count_nonzero(msk))
-                
-                out_dict["area_all"].append(a1)
                 out_dict["nr_cells"].append(a2)
             all_dfs.append(pd.DataFrame(out_dict))
         
@@ -298,18 +303,18 @@ def extract_morphology_from_movie(datapath):
         fr = grp.groups.keys() #to test
         # export summaries
         out={}
-        out["frame nr"] = fr
-        out["width mean"] = means['widths']
-        out["width std"] = stds['widths']
+        out["frame nrs [µm]"] = fr
+        out["width means [µm]"] = means['widths [µm]']
+        out["width stds [µm]"] = stds['widths [µm]']
         
-        out["length mean"] = means['lengths']
-        out["length std"] = stds['lengths']
+        out["length means [µm]"] = means['lengths [µm]']
+        out["length stds [µm]"] = stds['lengths [µm]']
         
-        out["cell area mean"] = means['areas']
-        out["cell area std"] = stds['areas']
+        out["cell area mean [µm^2]"] = means['areas [µm^2]']
+        out["cell area std [µm^2]"] = stds['areas [µm^2]']
         
         # no need to take the means as they all have the same value
-        out["All cells area"] = means['area_all']
+        out["All cells area [µm^2]"] = means['area_all [µm^2]']
         out["nr cells"] = means['nr_cells']
         
         df = pd.DataFrame(out)

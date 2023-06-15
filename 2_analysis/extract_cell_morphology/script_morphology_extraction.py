@@ -12,4 +12,5 @@ datapath="to_process/"
 if not os.path.isdir(datapath):
     os.mkdir(datapath)
 
-extract_morphology_from_movie(datapath)
+pixel_size=float(input("Please enter the pixel size in µm then press enter: "))
+extract_morphology_from_movie(datapath,pixel_size=pixel_size)
