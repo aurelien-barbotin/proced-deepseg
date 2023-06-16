@@ -17,13 +17,14 @@ from tifffile import imread,imwrite
 import numpy as np
 import os
 
+from scipy.io import loadmat
 # Load config ('2D' or 'mothermachine'):
 delta.config.load_config(presets="2D")
 
 # Use eval movie as example (or replace by None for interactive selection):
 file_path = "to_process/"
 files = glob.glob(file_path+"*.tif")
-
+out_paths=[]
 for file in files:
     
     # reformat to avoid bioformats
@@ -36,11 +37,12 @@ for file in files:
         os.mkdir(new_path)
     to_clear = []
     for j,im in enumerate(stack):
-        name = new_path+"/frame_{:04d}.tif".format(j)
+        name = new_path+"/frame_{:04d}.tif".format(j+1)
         to_clear.append(name)
         imwrite(name,im)
     # new_path="to_process\del-gacS_rep1/"
     # Init reader (use bioformats=True if working with nd2, czi, ome-tiff etc):
+ 
     xpreader = delta.utils.xpreader(new_path,use_bioformats=False,
                                     prototype='frame_%04d.tif',
                                     fileorder='t',)
@@ -50,9 +52,20 @@ for file in files:
     
     # Run it (you can specify which positions, which frames to run etc):
     xp.process()
-    
+    matpath=0
     for tc in to_clear:
         os.remove(tc)
+    try:
+        out_paths.append(file.split('.t')[0])
+    except:
+        pass
+    
+from tifffile import imsave
+for path in out_paths:
+    matpath=path+"/delta_results/Position000000.mat"
+    mat = loadmat(matpath)
+    segmented=mat['res'][0,0][0,0][0]
+    imsave(path+"_delta_segmented.tif",segmented)
 """
 from scipy.io import loadmat
 matpath="/run/user/1000/gvfs/smb-share:server=data.micalis.com,share=proced/microscopy/ZEISS_ELYRA7/Joseph/2023_06_02/substack/Substack (1-360-10)_delta_results/Position000000.mat"
