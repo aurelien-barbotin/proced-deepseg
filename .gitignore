@@ -2,7 +2,7 @@
 *.egg_info
 **.tif
 **.png
-**.xslx
+**.xlsx
 **.mat
 **.pkl
 **.mp4
