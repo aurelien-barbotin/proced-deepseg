@@ -15,7 +15,10 @@ import matplotlib.pyplot as plt
 
 plt.close('all')
 path = "/home/aurelienb/edges_comM surexprime bip+ stab-crop_cp_masks.csv"
+
 def find_next_division(root,G):
+    """Given a graph G and a node root, finds the nodes corresponding to the next 
+    division"""
     level = 0
     current = [root]
     while len(current)!=0:
@@ -92,7 +95,6 @@ def build_track_graph(df,trn,minsize=3):
     
     source_id=df['SPOT_SOURCE_ID'].values[nrem:]
     target_id=df['SPOT_TARGET_ID'].values[nrem:]
-    
     all_labels = df['LABEL'].values[nrem:]
     labels = all_labels[track_id==trn]
     
@@ -178,7 +180,7 @@ def merge_times_dict(td):
     return outx, outy
 import glob
 
-process_division_times = True
+process_division_times = False
 path="""/run/user/1000/gvfs/smb-share:server=data.micalis.com,share=proced/\
 microscopy/NIKON/Dimitri/230428 contraste phase/ilastik images/masks/edges/"""
 if process_division_times:
@@ -218,3 +220,83 @@ if process_division_times:
         for tup in times_dict[k]:
             if tup[0]>44:
                 print(k)"""
+
+# -------------- Measure width before division -------------------
+from tifffile import imread
+path_stack="/run/user/1000/gvfs/smb-share:server=data.micalis.com,share=proced/microscopy/NIKON/Dimitri/230428 contraste phase/ilastik images/masks/wt csp - stab-crop_cp_masks.tif"
+
+stack = imread(path_stack)
+
+path = "/home/aurelienb/Desktop/tmp/dimdim/edges_wt-_stab_crop.csv"
+path_spots="/home/aurelienb/Desktop/tmp/dimdim/spots_wt-_stab_crop.csv"
+
+
+nrem = 3
+# spots
+df_spots = pd.read_csv(path_spots)
+xspot=df_spots["POSITION_X"].values[nrem:].astype(float)
+yspot=df_spots["POSITION_Y"].values[nrem:].astype(float)
+id_fromspot = df_spots["ID"].values[nrem:].astype(int)
+frames_fromspot = df_spots["FRAME"].values[nrem:].astype(int)
+
+# edges
+df = pd.read_csv(path)
+
+# Loading data
+track_id =  df['TRACK_ID'].values[nrem:].astype(int)
+spot_id = df['SPOT_SOURCE_ID'].values[nrem:].astype(int)
+xloc = df['EDGE_X_LOCATION'].values[nrem:].astype(float)
+yloc = df['EDGE_Y_LOCATION'].values[nrem:].astype(float)
+track_vals = np.unique(track_id)
+
+out_dividing = []
+# Finds dividing cells
+for trn in track_vals:
+    graph = build_track_graph(df, trn)
+    # in node: nombre qui pointent
+    root_node = [node for node, in_degree  in graph.in_degree if in_degree==0]
+    if len(root_node)>1:
+        plt.figure()
+        nx.draw(graph,pos=nx.planar_layout(graph))
+        print(trn)
+        
+    assert len(root_node)==1
+    root_node = root_node[0]
+    
+    # to modify
+    all_divs=[]
+    divs=[root_node]
+    sublevel = 0
+    all_times=[]
+    while len(divs)>0:
+        print('Sublevel',sublevel)
+        divs_tmp_list=[]
+        for div in divs:
+            divs_tmp = find_next_division(div,graph)
+            if len(divs_tmp)>0:
+                
+                last_before_split = get_predecessor(divs_tmp,graph)
+                msk = id_fromspot==int(last_before_split)
+                xl,yl = xspot[msk][0], yspot[msk][0]
+                frame = frames_fromspot[msk][0]
+                index_instack = stack[frame,int(yl),int(xl)]
+                out_dividing.append({"frame":frame,
+                                     "index_instack": index_instack,
+                                     "xl":xl,
+                                     "yl":yl})
+                divs_tmp_list.extend(divs_tmp)
+    
+        divs = divs_tmp_list
+        sublevel+=1
+        
+from dl_for_mic.morphology_advanced import get_dimensions_rect
+# calculate morphology
+for j in range(len(out_dividing)):
+    frame,index_instack = out_dividing[j]["frame"],out_dividing[j]["index_instack"]
+    img = stack[frame]
+    msk=img==index_instack
+    width,length = get_dimensions_rect(msk)
+    
+    out_dividing[j]["width"]=width
+    out_dividing[j]["length"]=length
+    out_dividing[j]["area"]=np.count_nonzero(msk)
