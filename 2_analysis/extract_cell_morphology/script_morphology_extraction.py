@@ -13,4 +13,6 @@ if not os.path.isdir(datapath):
     os.mkdir(datapath)
 
 pixel_size=float(input("Please enter the pixel size in µm then press enter: "))
-extract_morphology_from_movie(datapath,pixel_size=pixel_size)
+"""repetition_keyword= input('''(optional) If this data has several replicates, please specify \
+the keyword for replicate nr (exemple in test_rep1.tif, enter 'rep'). Otherwise just press enter ''')"""
+extract_morphology_from_movie(datapath,pixel_size=pixel_size, rep_keyword = None)

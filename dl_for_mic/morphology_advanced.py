@@ -243,15 +243,18 @@ if __name__=='__main__':
     plt.imshow(mask)"""
     
 
-def extract_morphology_from_movie(datapath, pixel_size=1):
+def extract_morphology_from_movie(datapath, pixel_size=1, rep_keyword = None):
     """Given apath containing segmented movies, extracts cell morphology (width, length, area)
     using the rectangle method and saves results in an excel file.
     Parameters:
         datapath (str): path to folder containing the excel files
-        pixel_size (float): pixel size in microns."""
+        pixel_size (float): pixel size in microns.
+        rep_keyword (str): keyword to find repetition number. The repetition number
+            should come in the filename immediately after the keyword"""
     files = glob.glob(datapath+"/*.tif")
     
     # each stack
+    df_allfiles=[]
     for nfile, file in enumerate(files):
         print('Processing file {}'.format(file.split(os.sep)[-1]))
         mask = tifffile.imread(file)
@@ -276,6 +279,15 @@ def extract_morphology_from_movie(datapath, pixel_size=1):
             # individual cell within a frame
             a1 = np.count_nonzero(frame>0)
             a2=len(np.unique(frame))-1
+            if rep_keyword is not None:
+                try:
+                    tmp = os.path.split(file)[-1].split(rep_keyword)[-1]
+                    import re
+                    repnr=re.split("[_,.]",tmp)[0]
+                    repnr=int(repnr)
+                except Exception as e:
+                    repnr=-1
+                    
             for val in vals:
                 msk = frame==val
                 wt, lt = get_dimensions_rect(msk)
@@ -289,10 +301,13 @@ def extract_morphology_from_movie(datapath, pixel_size=1):
                 out_dict["frame nr"].append(j)
                 out_dict["index"].append(val)
                 out_dict["nr_cells"].append(a2)
+                
+                if rep_keyword is not None:
+                    out_dict["repetition"] = np.ones(len(out_dict["frame nr"]))*repnr
             all_dfs.append(pd.DataFrame(out_dict))
         
         df_final = pd.concat(all_dfs)
-        
+        df_allfiles.append(all_dfs)
         excel_name = file[:-4]+".xlsx"
         df_final.to_excel(excel_name)
         
@@ -301,6 +316,7 @@ def extract_morphology_from_movie(datapath, pixel_size=1):
         stds = grp.std()
         maxs = grp.max()
         fr = grp.groups.keys() #to test
+        
         # export summaries
         out={}
         out["frame nrs [µm]"] = fr
@@ -320,3 +336,27 @@ def extract_morphology_from_movie(datapath, pixel_size=1):
         df = pd.DataFrame(out)
         df.to_excel(file[:-4]+"_summaries.xlsx")
 
+        if rep_keyword is not None:
+            # export summaries with repetition nr
+            grp = df_final.groupby(['frame nr',"repetition"])
+            means = grp.mean()
+            stds = grp.std()
+            fr = grp.groups.keys() #to test
+            
+            out={}
+            out["frame nrs [µm]"] = fr
+            out["width means [µm]"] = means['widths [µm]']
+            out["width stds [µm]"] = stds['widths [µm]']
+            
+            out["length means [µm]"] = means['lengths [µm]']
+            out["length stds [µm]"] = stds['lengths [µm]']
+            
+            out["cell area mean [µm^2]"] = means['areas [µm^2]']
+            out["cell area std [µm^2]"] = stds['areas [µm^2]']
+            
+            # no need to take the means as they all have the same value
+            out["All cells area [µm^2]"] = means['area_all [µm^2]']
+            out["nr cells"] = means['nr_cells']
+            
+            df = pd.DataFrame(out)
+            df.to_excel(file[:-4]+"_summaries_repetitions.xlsx")
