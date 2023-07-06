@@ -116,7 +116,7 @@ def build_track_graph(df,trn,minsize=3):
 
 def get_division_speeds(path, minsize=3):
     """reads a csv file from trackmate (edges), calculates the corresponding 
-    graph and measures division time"""
+    graph and measures division time. Returns frames pairs (frame for div 1, time until division)"""
     df = pd.read_csv(path)
     
     nrem = 3
@@ -220,18 +220,32 @@ if process_division_times:
             if tup[0]>44:
                 print(k)"""
 
-
+from skimage.morphology import closing
+def isnr(st):
+    try:
+        u = float(st)
+        return True
+    except:
+        return False
+    
 def measure_cellarea_before_division(path_stack,path_spots,path_edges, psize=1,
-                                     savename=None):
-    
+                                     savename=None, tol=10):
+    # tol: tolerance in pixels. Eliminates everything too close to edge
     stack = imread(path_stack)
+    stack_detection=np.array([closing(w,footprint=np.ones((3,3))) for w in stack])
     
-    nrem = 3
+    
     # spots
     df_spots = pd.read_csv(path_spots)
+    xspot=df_spots["POSITION_X"].values
+    for j in range(10):
+        if isnr(xspot[j]):
+            nrem=j
+            break
     xspot=df_spots["POSITION_X"].values[nrem:].astype(float)
     yspot=df_spots["POSITION_Y"].values[nrem:].astype(float)
     id_fromspot = df_spots["ID"].values[nrem:].astype(int)
+    medians=df_spots['MEDIAN_INTENSITY_CH1'].values[nrem:].astype(float).astype(int)
     frames_fromspot = df_spots["FRAME"].values[nrem:].astype(int)
     
     # edges
@@ -258,7 +272,7 @@ def measure_cellarea_before_division(path_stack,path_spots,path_edges, psize=1,
         divs=[root_node]
         sublevel = 0
         while len(divs)>0:
-            print('Sublevel',sublevel)
+            # print('Sublevel',sublevel)
             divs_tmp_list=[]
             for div in divs:
                 divs_tmp = find_next_division(div,graph)
@@ -266,14 +280,28 @@ def measure_cellarea_before_division(path_stack,path_spots,path_edges, psize=1,
                     
                     last_before_split = get_predecessor(divs_tmp,graph)
                     msk = id_fromspot==int(last_before_split)
+                    # print(np.count_nonzero(msk),last_before_split)
+                    assert np.count_nonzero(msk)==1
                     xl,yl = xspot[msk][0], yspot[msk][0]
                     frame = frames_fromspot[msk][0]
-                    index_instack = stack[frame,int(yl),int(xl)]
-                    out_dividing.append({"frame":frame,
-                                         "index_instack": index_instack,
-                                         "xl":xl,
-                                         "yl":yl})
-                    divs_tmp_list.extend(divs_tmp)
+                    index_instack = medians[msk][0]
+                    
+                    if not (xl<tol or yl<tol or xl>stack.shape[2]-tol or yl>stack.shape[1]-tol):
+                        out_dividing.append({"frame":frame,
+                                             "index_instack": index_instack,
+                                             "xl":xl,
+                                             "yl":yl})
+                        divs_tmp_list.extend(divs_tmp)
+                        
+                        if stack_detection[frame,int(yl),int(xl)]!=medians[msk][0]:
+                            print('warning, mismatch',index_instack,medians[msk][0])
+                        if index_instack==0 or stack_detection[frame,int(yl),int(xl)]!=medians[msk][0]:
+                            print("bb",divs_tmp,frame,last_before_split)
+                            print(xl,yl,index_instack)
+                            print('cc')
+                            plt.figure()
+                            plt.imshow(stack[frame])
+                            
         
             divs = divs_tmp_list
             sublevel+=1
@@ -288,7 +316,8 @@ def measure_cellarea_before_division(path_stack,path_spots,path_edges, psize=1,
         out_dividing[j]["width"]=width
         out_dividing[j]["length"]=length
         out_dividing[j]["area"]=np.count_nonzero(msk)
-    
+        if out_dividing[j]["area"]>1000:
+            print(index_instack,frame)
     
     sizepairs={'frame':[],
                'area [µm2]':[]}
@@ -417,6 +446,7 @@ stab-crop-1 corrige_cp_masks.tif"""
     plt.title('csp+')
     build_lineage(path_stack1, path_spots1, path_edges1)
     plt.title('csp-')
+    
     """
     measure_cellarea_before_division(path_stack1, path_spots1, path_edges1)
     plt.title('csp -')

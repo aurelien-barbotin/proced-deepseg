@@ -121,7 +121,7 @@ def cell_dimensions_skel(mask, upsampling_factor = 5,
         upsampling_factor (int): Masks are upsampled by this factor to increase
             method precision. Higher coefficient yields slower but more accurate
             results.
-        plot_in_context (bool): if Ture, plots the resulting skeleton
+        plot_in_context (bool): if True, plots the resulting skeleton
         plot_single (bool): if True, plots the upsampled image of the mask
             along its skeleton. Useful for debuging purpose
             width_percentile (int or float): defines the with as the n-th 
@@ -172,9 +172,16 @@ def cell_dimensions_skel(mask, upsampling_factor = 5,
         xskel, yskel = np.where(skelf>0)
         plt.plot(yskel-margin+submask_coords[1],xskel-margin+submask_coords[0],
                  "o",markersize=0.5,color="k")
-        
+    
     x_0, y_0 = get_skel_extrema(skelf)
-    start = x_0[0], y_0[0]
+    try:
+        start = x_0[0], y_0[0]
+    except:
+        plt.figure()
+        plt.imshow(mask)
+        print(np.count_nonzero(mask))
+        print(np.where(mask))
+        raise ValueError()
     end = x_0[1], y_0[1]
     skelf[skelf==0] = 100
     path, cell_length = route_through_array(skelf.astype(float), start, end ,
