@@ -24,6 +24,6 @@ for folder in folders:
     excels=glob.glob(folder+'*.csv')
     path_edges=list(filter(lambda x: "edges" in os.path.split(x)[-1],excels))[0]
     path_spots=list(filter(lambda x: "spots" in os.path.split(x)[-1],excels))[0]
-    new_name=list(filter(lambda x: x!="",folder.split('/')))[-1].replace(' ','_')
+    new_name=list(filter(lambda x: x!="",folder.split(os.sep)))[-1].replace(' ','_')
     df= measure_cellarea_before_division(path_stack,path_spots,path_edges,psize=pixel_size,
                                         savename=folder+'../'+new_name+"_cellarea_vs_division.xlsx")

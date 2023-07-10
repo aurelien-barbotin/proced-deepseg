@@ -39,6 +39,6 @@ for folder in folders:
             out.append(pair)
     df=pd.DataFrame(out,columns=['Frame','Division time'])
     
-    new_name=list(filter(lambda x: x!="",folder.split('/')))[-1].replace(' ','_')
+    new_name=list(filter(lambda x: x!="",folder.split(os.sep)))[-1].replace(' ','_')
     savename=folder+'../'+new_name+"_division_times.xlsx"
     df.to_excel(savename)
