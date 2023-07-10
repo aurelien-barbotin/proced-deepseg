@@ -15,7 +15,7 @@ import glob
 from tifffile import imread
 import sys
 sys.path.append("..")
-from morphology_advanced import extract_roi, cell_dimensions_skel, get_dimensions_rect
+from dl_for_mic.morphology_advanced import extract_roi, cell_dimensions_skel, get_dimensions_rect
 
 path = "/home/aurelienb/Data/STAGE FEV JUIN 2022/MANUAL VS CODE WIDTH MEASURES/test_datasets/"
 df_all = pd.read_csv(path+"manual_measures.csv")
@@ -24,6 +24,7 @@ lw_manual = []
 lw_rect = []
 lw_skel = []
 files = list(set(df_all["Filename"].values))
+file_coordpair=[]
 for jj in range(len(files)):
     file = path+files[jj].split(":")[0]
     mask = imread(file)[1]
@@ -38,6 +39,7 @@ for jj in range(len(files)):
     tmp_measured_rect = []
     tmp_measured_skel = []
     for index in indices:
+        file_coordpair.append([file,index])
         width,length = df[df["Median"]==index]["Length"].values
         if length<width:
             print("Warning! width is larger than length")
@@ -72,7 +74,6 @@ plt.plot(xx,xx, "k--")
 plt.xlabel("Manually input value")
 plt.ylabel("Measured value")
 plt.legend()
-
 plt.subplot(122)
 plt.title("Width")
 plt.scatter(lw_manual[:,1], lw_rect[:,1],label="Rectangle")
@@ -82,6 +83,9 @@ plt.plot(xx,xx, "k--")
 plt.xlabel("Manually input value")
 plt.ylabel("Measured value")
 plt.legend()
+
+error_skel = 100*np.abs((lw_manual[:,0]-lw_skel[:,0])/lw_manual[:,0])
+where_err = np.where(error_skel>10)
 
 for j in range(2):
     error_skel = np.abs((lw_manual[:,j] - lw_skel[:,j])/lw_manual[:,j])*100

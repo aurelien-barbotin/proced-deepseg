@@ -13,7 +13,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 import cv2
-from skimage.morphology import medial_axis
+from skimage.morphology import medial_axis, binary_erosion
 from skimage.measure import find_contours
 
 from scipy.ndimage import gaussian_filter, zoom, convolve, label
@@ -133,9 +133,10 @@ def cell_dimensions_skel(mask, upsampling_factor = 5,
     margin = 2*upsampling_factor
     submask_coords, submask = extract_roi(mask, margin = margin)
     
-    # finds the skeleton
-    new_img = zoom(gaussian_filter(submask.astype(float),
-                                   sigma=0.8),upsampling_factor)
+    
+    submask_eroded = binary_erosion(submask)
+    new_img = zoom(gaussian_filter(submask_eroded.astype(float),sigma=0.8),
+                   upsampling_factor)
 
     poly = find_contours(new_img/new_img.max(),level=0.5)[0]
 
@@ -143,9 +144,14 @@ def cell_dimensions_skel(mask, upsampling_factor = 5,
     out = np.zeros_like(new_img)
     out[rr, cc] = 1
     
-    skel, dist = medial_axis(out, return_distance = True)
+    # extracts the skeleton on the processed image
+    skel, _ = medial_axis(out, return_distance = True)
+    _, dist = medial_axis(zoom(submask.astype(int),upsampling_factor).astype(int), 
+                          return_distance = True)
+    
+    skel = remove_forks(skel)
     # factor 2 because measures distance to an edge
-    cell_widths = 2*dist[skel]/upsampling_factor
+    cell_widths = 2*dist[skel>0]/upsampling_factor
     cell_width = np.percentile(cell_widths, width_percentile)
     
     x_refs, y_refs = get_skel_extrema(skel)
@@ -181,9 +187,7 @@ def cell_dimensions_skel(mask, upsampling_factor = 5,
     except:
         plt.figure()
         plt.imshow(mask)
-        print(np.count_nonzero(mask))
-        print(np.where(mask))
-        # raise ValueError()
+        raise ValueError()
     skelf[skelf==0] = 100
     path, cell_length = route_through_array(skelf.astype(float), start, end ,
                                      geometric=True)
@@ -210,45 +214,6 @@ def get_dimensions_rect(msk, plot=False):
         cv2.drawContours(mask,[box],0,(0,0,255),1)
         cv2.imshow("mask and approximation",mask)
     return min(rect[1]), max(rect[1])
-
-if __name__=='__main__':
-    plt.close('all')
-    path = "/home/aurelienb/Documents/Projects/2022_02_Louise/CCBS616_1_561.tif-labels.tif"
-    path="/home/aurelienb/Documents/Projects/2022_02_Louise/resized_testim_labels.tif"
-    img = imread(path)
-    # img[img==43] = 0
-    img = img[-1]
-    nce = 78
-    nce = 89
-    widths = []
-    lengths = []
-    img_dsp = img.copy().astype(float)
-    img_dsp[img_dsp==0]=np.nan
-    plt.figure()
-    plt.imshow(img_dsp, cmap="Set2")
-    
-    labels = np.unique(img).tolist()
-    labels.pop(0)
-    for nce in labels:
-        mask = img==nce
-        width, length = cell_dimensions_skel(mask,upsampling_factor=5)
-        widths.append(width)
-        lengths.append(length)
-    
-    lab = np.random.choice(labels)
-    # lab=699
-    width, length = cell_dimensions_skel(img==lab,upsampling_factor=5,plot_in_context=False,
-                                         plot_single = True)
-    
-    plt.figure()
-    plt.subplot(121)
-    plt.hist(widths,bins=10)
-    plt.xlabel("width [pixels]")
-    plt.subplot(122)
-    plt.hist(lengths,bins=10)
-    plt.xlabel("length [pixels]")
-    """plt.figure()
-    plt.imshow(mask)"""
 
 def extract_morphology_from_movie(datapath, pixel_size=1, rep_keyword = None):
     """Given apath containing segmented movies, extracts cell morphology (width, length, area)
@@ -392,3 +357,22 @@ def label_disambiguation(labels_stack):
                 current_label+=1
                 
     return new_stack
+
+def remove_forks(skel, plot=False):
+    """Takes a binary-integer image of a skeleton as an input, removes forks 
+    where more than 2 paths merge and keeps only the longest."""
+    connectivity = convolve(skel.astype(int),np.ones((3,3)))*skel.astype(int)
+    
+    connectivity[connectivity>3]=0
+    labs,nlabs=label(connectivity,structure=np.ones((3,3)))
+    counts=[np.count_nonzero(labs==w+1) for w in range(nlabs)]
+    final_index = counts.index(max(counts))+1
+    skel_final = (labs==final_index).astype(int)
+    
+    if plot:
+        plt.figure()
+        plt.subplot(121)
+        plt.imshow(connectivity)
+        plt.subplot(122)
+        plt.imshow(skel_final)
+    return skel_final
