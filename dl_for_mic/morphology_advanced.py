@@ -16,7 +16,7 @@ import cv2
 from skimage.morphology import medial_axis
 from skimage.measure import find_contours
 
-from scipy.ndimage import gaussian_filter, zoom, convolve
+from scipy.ndimage import gaussian_filter, zoom, convolve, label
 from tifffile import imread
 from scipy.stats import linregress
 
@@ -113,7 +113,7 @@ def unzoom_skel(skel_zoomed,factor):
     return (skel_unzoomed>0)
 
 def cell_dimensions_skel(mask, upsampling_factor = 5,
-                         plot_in_context = True, plot_single=False, width_percentile = 90):
+                         plot_in_context = True, plot_single=False, width_percentile = 75):
     """Measures dimensions of a rod-shaped mask using skeletonization.
     Parameters:
         mask (ndarray): binary mask, represents a rod-shaped bacteria which dimensions
@@ -133,8 +133,9 @@ def cell_dimensions_skel(mask, upsampling_factor = 5,
     margin = 2*upsampling_factor
     submask_coords, submask = extract_roi(mask, margin = margin)
     
+    # finds the skeleton
     new_img = zoom(gaussian_filter(submask.astype(float),
-                                   sigma=upsampling_factor*4/5),upsampling_factor)
+                                   sigma=0.8),upsampling_factor)
 
     poly = find_contours(new_img/new_img.max(),level=0.5)[0]
 
@@ -176,13 +177,13 @@ def cell_dimensions_skel(mask, upsampling_factor = 5,
     x_0, y_0 = get_skel_extrema(skelf)
     try:
         start = x_0[0], y_0[0]
+        end = x_0[1], y_0[1]
     except:
         plt.figure()
         plt.imshow(mask)
         print(np.count_nonzero(mask))
         print(np.where(mask))
-        raise ValueError()
-    end = x_0[1], y_0[1]
+        # raise ValueError()
     skelf[skelf==0] = 100
     path, cell_length = route_through_array(skelf.astype(float), start, end ,
                                      geometric=True)
@@ -248,7 +249,6 @@ if __name__=='__main__':
     plt.xlabel("length [pixels]")
     """plt.figure()
     plt.imshow(mask)"""
-    
 
 def extract_morphology_from_movie(datapath, pixel_size=1, rep_keyword = None):
     """Given apath containing segmented movies, extracts cell morphology (width, length, area)
@@ -367,3 +367,28 @@ def extract_morphology_from_movie(datapath, pixel_size=1, rep_keyword = None):
             
             df = pd.DataFrame(out)
             df.to_excel(file[:-4]+"_summaries_repetitions.xlsx")
+
+def label_disambiguation(labels_stack):
+    """Given a 3D stack of labels, ensures that each label is unique across frames
+    and within frames."""
+    nt,u,v = labels_stack.shape
+    current_label = 1
+    new_stack = np.zeros_like(labels_stack)
+    
+    for fr in range(nt):
+        frame=labels_stack[fr]
+        indices = np.unique(frame)
+        indices = np.array([w for w in indices if w!=0])
+        
+        for indice in indices:
+            mask = frame==indice
+            lab_check, nfeatures = label(mask)
+            if nfeatures>1:
+                for j in range(nfeatures):
+                    new_stack[fr,lab_check==j+1]=current_label
+                    current_label+=1
+            else:
+                new_stack[fr,mask]=current_label
+                current_label+=1
+                
+    return new_stack
