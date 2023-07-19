@@ -15,19 +15,28 @@ import matplotlib.pyplot as plt
 from dl_for_mic.morphology_advanced import get_dimensions_rect
 from tifffile import imread
 
-def find_next_division(root,G):
+def find_next_division(root,G, return_path=False):
     """Given a graph G and a node root, finds the nodes corresponding to the next 
     division"""
     level = 0
     current = [root]
+    if return_path:
+        path=[root]
     while len(current)!=0:
         level+=1
         successors = list(G.successors(current[0]))
         if len(successors)>1:
-            return successors
+            if return_path:
+                return successors,path
+            else:
+                return successors
         # print("level",level)
         current = successors
-    return []
+        path.extend(current)
+    if return_path:
+        return [],[]
+    else:
+        return []
 
     
 def get_predecessor(suc,G):
@@ -114,7 +123,7 @@ def build_track_graph(df,trn,minsize=3):
     graph_cleanup(graph,minsize=minsize)
     return graph
 
-def get_division_speeds(path, minsize=3):
+def get_division_speeds(path, minsize=3, return_track=False):
     """reads a csv file from trackmate (edges), calculates the corresponding 
     graph and measures division time. Returns frames pairs (frame for div 1, time until division)"""
     df = pd.read_csv(path)
@@ -127,11 +136,12 @@ def get_division_speeds(path, minsize=3):
     
     # building the graph
     out_divtimes = {}
+    all_tracks=[]
     for trn in track_vals:
         
         graph = build_track_graph(df, trn,minsize=minsize)
         # in node: nombre qui pointent
-        root_node = [node for node, in_degree  in graph.in_degree if in_degree==0]
+        root_node = [node for node, in_degree in graph.in_degree if in_degree==0]
         if len(root_node)>1:
             plt.figure()
             nx.draw(graph,pos=nx.planar_layout(graph))
@@ -150,13 +160,15 @@ def get_division_speeds(path, minsize=3):
             print('Sublevel',sublevel)
             divs_tmp_list=[]
             for div in divs:
-                divs_tmp = find_next_division(div,graph)
-                
+                divs_tmp = find_next_division(div,graph, return_path=return_track)
+                if return_track:
+                    divs_tmp, track = divs_tmp
                 if len(divs_tmp)>0:
                     last_before_split = get_predecessor(divs_tmp,graph)
-                    # -G.nodes[div]['frame']
                     t_root = graph.nodes[div]['frame']
                     t_last = graph.nodes[last_before_split]['frame']
+                    if return_track and t_root>0:
+                        all_tracks.append(track)
                     ts = (t_root,t_last-t_root)
                     all_times.append(ts)
                     divs_tmp_list.extend(divs_tmp)
@@ -165,8 +177,12 @@ def get_division_speeds(path, minsize=3):
             all_divs.append(divs)
             
             sublevel+=1
+        # eliminate first division
         out_divtimes[trn] = all_times[1:]
-    return out_divtimes
+    if return_track:
+        return out_divtimes, all_tracks
+    else:
+        return out_divtimes
 
 def merge_times_dict(td):
     outx = []
@@ -302,7 +318,6 @@ def measure_cellarea_before_division(path_stack,path_spots,path_edges, psize=1,
                             plt.figure()
                             plt.imshow(stack[frame])
                             
-        
             divs = divs_tmp_list
             sublevel+=1
             
