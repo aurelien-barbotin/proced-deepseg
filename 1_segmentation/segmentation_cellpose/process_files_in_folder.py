@@ -37,8 +37,6 @@ if not os.path.isdir(folder_out):
     os.mkdir(folder_out)
 # path_images = "//data.micalis.com/proced/proced/6- Former Lab Members/LOUISE DESTOUCHES/STAGE FEV JUIN 2022/SEGMENTATION CHA IM DATABASE/TIMELAPSE PRE-PROCESSING FOR SEG/BACI1_200515_S1_selseq_resized/"
 
-
-
 subfolder=input("Please enter output folder name:\n")
 
 if os.path.isdir(subfolder):
@@ -47,34 +45,46 @@ if os.path.isdir(subfolder):
 os.mkdir(folder_out+subfolder+"/")
 files = glob.glob(folder_in+"*.tif*")
 images = [imread(w) for w in files]
+images_2d = []
+images_3d = []
+files2d=[]
+files3d=[]
+
+for file in files:
+    im = imread(file)
+    if im.ndim==2:
+        images_2d.append(im)
+        files2d.append(file)
+    elif im.ndim==3:
+        
+        images_3d.append(im)
+        files3d.append(file)
+
 channels=[[0,0]]
 
 model = models.CellposeModel(gpu=False, pretrained_model=QC_model_path,
                              diam_mean=30.0, net_avg=True, device=None, 
                              residual_on=True, style_on=True, concatenation=False)
 
-out = model.eval(images, diameter=None, channels=channels)
-
-names = [w.split(os.sep)[-1] for w in files]
+out = model.eval(images_2d, diameter=None, channels=channels)
 # masks, flows, styles, diams
 
 masks, flows, styles = out
 
-for j in range(len(files)):
-    name = files[j].split(os.sep)[-1].split('.')[0]
+for j in range(len(files2d)):
+    name = files2d[j].split(os.sep)[-1].split('.')[0]
     out_name = folder_out+subfolder+"/"+name+'_mask.tif'
-    """image = tifffile.imread(files[j])
-    masks, flows_orig, _ = CP.eval(image, 
-                                    channels=channels, 
-                                    # channel_axis=channel_axis,
-                                    diameter=diameter,
-                                    net_avg=True,
-                                    resample=False,
-                                    cellprob_threshold=cellprob_threshold,
-                                    flow_threshold=flow_threshold,
-                                    do_3D=False,
-                                    #stitch_threshold=stitch_threshold
-                                    )"""
     mask = masks[j]
     imwrite(out_name,mask)
+
+for images in images_3d:
+    out = model.eval(images, diameter=None, channels=channels)
+    masks, flows, styles = out
+    name = files2d[j].split(os.sep)[-1].split('.')[0]
+    subdir = folder_out+subfolder+"/"+name+'_mask'
+    if not os.path.isdir(subdir):
+        os.mkdir(subdir)
+    for j in range(len(masks)):
+        imwrite(subdir+'{}.tif'.format(j+1),mask)
+        
     

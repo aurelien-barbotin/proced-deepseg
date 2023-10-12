@@ -56,8 +56,9 @@ if reprocess:
         all_dfs.append(df)
 else:
     csvs = glob.glob(path_labels+"/*.csv")
-    
     all_dfs = [pd.read_csv(w) for w in csvs]
+
+1/0
 # ------ plotting -----------
 plt.close("all")
 keywords = ["BAC", "CHLORA", "FOSFO","CTRL","CYCLO","VANCO","LYS","PEN"]

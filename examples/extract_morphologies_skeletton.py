@@ -29,7 +29,7 @@ folder_in="/home/aurelienb/Desktop/tmp/cha/"
 path_labels = folder_in
 
 folders_labels = glob.glob(path_labels+"/*/")
-PSIZE=0.1
+PSIZE=0.065
 upsampling_factor = 3
 # PSIZE= float(input("Please specify the pixel size of your images in µm: "))
 
