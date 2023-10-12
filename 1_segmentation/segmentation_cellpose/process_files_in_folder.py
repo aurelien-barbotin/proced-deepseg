@@ -10,6 +10,7 @@ import os
 import sys
 
 from cellpose import models
+import numpy as np
 
 # QC_model_path = "C:/Users/proced_user/Documents/Segmentation/FINAL_models/Cellpose_GM_FINAL/cellpose_residual_on_style_on_concatenation_off_train_folder_2022_05_18_13_33_18.490485"
 path = "C:/Users/proced_user/Documents/Segmentation/FINAL_models/"
@@ -77,14 +78,20 @@ for j in range(len(files2d)):
     mask = masks[j]
     imwrite(out_name,mask)
 
-for images in images_3d:
-    out = model.eval(images, diameter=None, channels=channels)
+for j,images in enumerate(images_3d):
+    print('Processing images 3D',images.shape)
+    out = model.eval([w for w in images], diameter=None, channels=channels)
     masks, flows, styles = out
-    name = files2d[j].split(os.sep)[-1].split('.')[0]
+    print(len(masks))
+    name = files3d[j].split(os.sep)[-1].split('.')[0]
     subdir = folder_out+subfolder+"/"+name+'_mask'
-    if not os.path.isdir(subdir):
-        os.mkdir(subdir)
-    for j in range(len(masks)):
-        imwrite(subdir+'{}.tif'.format(j+1),mask)
+    try:
+        imwrite(subdir+".tif",np.array(masks))
+        print('success writing')
+    except: # if they don't all hve the same size
+        if not os.path.isdir(subdir):
+            os.mkdir(subdir)
+        for k in range(len(masks)):
+            imwrite(subdir+'/{}.tif'.format(k+1),masks[k])
         
     
