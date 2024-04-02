@@ -1,10 +1,12 @@
-# DL for microscopy
+# proced-deepseg
 
-A collection of scripts to perform deep-learning segmentation of bacterial cells labeled with membrane markers and the analysis of the corresponding results. Named after https://henriqueslab.github.io/resources/ZeroCostDL4Mic/ and some models were created using this ressource.
+A collection of Python scripts to perform deep-learning segmentation of bacterial cells and the analysis of the corresponding results.
+
+![Growth of S. pneumoniae cells automatically monitored with deep learning](https://github.com/aurelien-barbotin/proced-deepseg/blob/main/illustrations/illustration_1-1.gif)
 
 Contains scripts for image segmentation and segmentation analysis. Image segmentation is performed using one of three models:
  - Cellpose: either the general model, or our home-trained model on B. subtilis images labeled with NileRed
- - Omnipose:the general model
+ - Omnipose: either the general model for phase contrast data, or the model for fluorescence imaging
  - delta
 
 Each of these three methods runs in a different virtual environment (to avoid conflicts).
@@ -36,7 +38,7 @@ To avoid dependency conflicts, it is preferable to install the different segment
 
 ## omnipose
 A Virtualenv necessary to run omnipose. Follow the instructions of the official page: https://pypi.org/project/omnipose/
-Microsoft Visual C++ is necessary. For omnipose_custom, you also need to update the path to the custom omnipose model. Based on how it was trained, you also might need to change the parameter 'nchan'.
+Microsoft Visual C++ is necessary. Last checked, works for omnipose==0.4.4 but not for omnipose>1 For omnipose_custom, you also need to update the path to the custom omnipose model. Based on how it was trained, you also might need to change the parameter 'nchan'.
 
 ## cellpose
 So far it is expecting a `deepseg` environment. The processing script also needs to know the path to the custom models.IT can be the same environment as dl_for_mic as cellpose is a requirement of dl_for_mic. This may change in a near future.

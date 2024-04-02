@@ -8,7 +8,7 @@ Created on Thu Jun 29 10:01:04 2023
 Scripts used to annotate tracking videos. The main method is make_tracking_video
 """
 
-from dl_for_mic.measure_division_fromtrackmate import (measure_cellarea_before_division,
+from proced_deepseg.measure_division_fromtrackmate import (measure_cellarea_before_division,
                                    build_lineage, get_division_speeds,get_division_speeds)
 
 import glob

@@ -15,7 +15,7 @@ import os
 import tifffile
 import pandas as pd
 
-from dl_for_mic.morphology_advanced import get_dimensions_rect
+from proced_deepseg.morphology_advanced import get_dimensions_rect
 plt.close('all')
 
 datapath="/run/user/1000/gvfs/smb-share:server=data.micalis.com,share=proced/microscopy/ZEISS_ELYRA7/Joseph/230314/test_segmentation/masks"

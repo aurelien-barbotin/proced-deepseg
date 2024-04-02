@@ -1,7 +1,0 @@
-scikit-image
-opencv-python
-cellpose
-matplotlib
-pandas
-numpy
-openpyxl

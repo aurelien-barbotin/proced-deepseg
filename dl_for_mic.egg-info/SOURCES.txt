@@ -1,9 +1,0 @@
-LICENSE
-README.md
-setup.py
-dl_for_mic.egg-info/PKG-INFO
-dl_for_mic.egg-info/SOURCES.txt
-dl_for_mic.egg-info/dependency_links.txt
-dl_for_mic.egg-info/requires.txt
-dl_for_mic.egg-info/top_level.txt
-tests/test_measurement_methods.py

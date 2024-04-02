@@ -15,7 +15,7 @@ import glob
 from tifffile import imread
 import sys
 sys.path.append("..")
-from dl_for_mic.morphology_advanced import extract_roi, cell_dimensions_skel, get_dimensions_rect
+from proced_deepseg.morphology_advanced import extract_roi, cell_dimensions_skel, get_dimensions_rect
 
 path = "/home/aurelienb/Data/STAGE FEV JUIN 2022/MANUAL VS CODE WIDTH MEASURES/test_datasets/"
 df_all = pd.read_csv(path+"manual_measures.csv")

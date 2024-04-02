@@ -5,13 +5,23 @@ Created on Tue Apr 18 09:50:49 2023
 @author: proced_user
 """
 import glob
-from tifffile import imread, imwrite
+from tifffile import imwrite
+from czifile import imread as _imread
 import os
 import sys
 
 from cellpose import models
 import numpy as np
+import matplotlib.pyplot as plt
+from skimage.filters import gaussian
 
+def imread(file):
+    im = np.squeeze(_imread(file))
+    im = im.astype(float)
+    im-=im.min()
+    im/=np.percentile(im,99)
+    im = gaussian(im,sigma=3)
+    return im
 # QC_model_path = "C:/Users/proced_user/Documents/Segmentation/FINAL_models/Cellpose_GM_FINAL/cellpose_residual_on_style_on_concatenation_off_train_folder_2022_05_18_13_33_18.490485"
 path = "C:/Users/proced_user/Documents/Segmentation/FINAL_models/"
 path="/home/aurelienb/Documents/Projects/2022_02_Louise/models/"
@@ -20,12 +30,10 @@ models_path = {1:
           2:
   "Cellpose_MIX_FINAL/cellpose_residual_on_style_on_concatenation_off_train_folder_2022_05_25_07_47_36.630602"}
 
+folder_in = "/home/aurelienb/Data/2024_03_13_morpho/2_stat_RT_FM464/"
+folder_out = folder_in
 
-
-folder_in = "to_process/"
-folder_out = "results/"
-
-model_nr = -1
+model_nr = 1
 kk=models_path.keys()
 while model_nr not in kk:
     model_nr = int(input("""Please enter a model number between {} and {}. 
@@ -39,12 +47,10 @@ if not os.path.isdir(folder_out):
     os.mkdir(folder_out)
 # path_images = "//data.micalis.com/proced/proced/6- Former Lab Members/LOUISE DESTOUCHES/STAGE FEV JUIN 2022/SEGMENTATION CHA IM DATABASE/TIMELAPSE PRE-PROCESSING FOR SEG/BACI1_200515_S1_selseq_resized/"
 
-subfolder=input("Please enter output folder name:\n")
+subfolder="masks"
 
-if os.path.isdir(subfolder):
-    print("The filename already exists, please specify another one")
-    sys.exit(0)
-os.mkdir(folder_out+subfolder+"/")
+if not os.path.isdir(folder_out+subfolder):
+    os.mkdir(folder_out+subfolder+"/")
 files = glob.glob(folder_in+"*.czi*")
 images = [imread(w) for w in files]
 images_2d = []
@@ -63,15 +69,25 @@ for file in files:
         files3d.append(file)
 
 channels=[[0,0]]
-
+diam=70
 model = models.CellposeModel(gpu=False, pretrained_model=QC_model_path,
-                             diam_mean=30.0, net_avg=True, device=None, 
+                             diam_mean=diam, net_avg=True, device=None, 
                              residual_on=True, style_on=True, concatenation=False)
 
-out = model.eval(images_2d, diameter=None, channels=channels)
+out = model.eval(images_2d, diameter=diam, channels=channels)
 # masks, flows, styles, diams
-
 masks, flows, styles = out
+print(masks[0].max())
+plt.figure()
+plt.subplot(221)
+plt.imshow(images_2d[0])
+plt.subplot(222)
+plt.imshow(flows[0][0])
+plt.subplot(223)
+plt.imshow(masks[0])
+plt.subplot(224)
+plt.imshow(flows[0][2])
+
 
 for j in range(len(files2d)):
     name = files2d[j].split(os.sep)[-1].split('.')[0]

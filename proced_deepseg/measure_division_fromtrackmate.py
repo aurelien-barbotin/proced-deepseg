@@ -12,7 +12,7 @@ import numpy as np
 import pandas as pd
 import networkx as nx
 import matplotlib.pyplot as plt
-from dl_for_mic.morphology_advanced import get_dimensions_rect
+from proced_deepseg.morphology_advanced import get_dimensions_rect
 from tifffile import imread
 
 def find_next_division(root,G, return_path=False):

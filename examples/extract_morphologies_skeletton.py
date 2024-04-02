@@ -16,7 +16,7 @@ import os
 
 import glob
 from tifffile import imread
-from dl_for_mic.morphology_advanced import cell_dimensions_skel, label_disambiguation
+from proced_deepseg.morphology_advanced import cell_dimensions_skel
 from scipy.ndimage import label as label_function
 
 plt.close('all')

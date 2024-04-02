@@ -5,7 +5,7 @@ Created on Thu Jun 15 09:30:21 2023
 @author: proced_user
 """
 
-from dl_for_mic.morphology_advanced import extract_morphology_from_movie
+from proced_deepseg.morphology_advanced import extract_morphology_from_movie
 import os
 
 datapath="to_process/"

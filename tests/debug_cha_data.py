@@ -9,7 +9,7 @@ Created on Mon Jul 10 10:21:57 2023
 import numpy as np
 import tifffile
 import matplotlib.pyplot as plt
-from dl_for_mic.morphology_advanced import cell_dimensions_skel
+from proced_deepseg.morphology_advanced import cell_dimensions_skel
 from skimage.morphology import binary_erosion
 
 plt.close('all')
@@ -48,7 +48,7 @@ from skimage.draw import polygon
 from skimage.graph import route_through_array
 from skimage.morphology import binary_erosion, disk
 import tifffile
-from dl_for_mic.morphology_advanced import extract_roi, prolongate_skel, get_skel_extrema, unzoom_skel
+from proced_deepseg.morphology_advanced import extract_roi, prolongate_skel, get_skel_extrema, unzoom_skel
 
 width_percentile = 75
 plot_single = True

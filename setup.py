@@ -4,7 +4,6 @@ import os
 with open("README.md", "r", encoding="utf-8") as fh:
     long_description = fh.read()
 
-
 thelibFolder = os.path.dirname(os.path.realpath(__file__))
 
 requirementPath = thelibFolder + '/lib/requirements.txt'
@@ -14,7 +13,7 @@ if os.path.isfile(requirementPath):
         install_requires = f.read().splitlines()
         
 setuptools.setup(
-    name="dl_for_mic", # Replace with your own username
+    name="proced-deepseg", # Replace with your own username
     version="1",
     author="Aurélien Barbotin",
     description="Useful stuff to use deep learning in bacteria",

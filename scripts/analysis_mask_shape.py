@@ -14,7 +14,7 @@ import os
 import tifffile
 import pandas as pd
 
-from dl_for_mic.morphology_advanced import get_dimensions_rect
+from proced_deepseg.morphology_advanced import get_dimensions_rect
 plt.close('all')
 
 # datapath="/run/user/1000/gvfs/smb-share:server=data.micalis.com,share=proced/microscopy/NIKON/Dimitri/230504 bip induction 30min timelapse/pour_segmentationmasks/"

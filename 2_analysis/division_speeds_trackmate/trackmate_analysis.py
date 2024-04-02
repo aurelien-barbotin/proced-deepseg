@@ -5,7 +5,7 @@ Created on Fri Jun 16 15:56:00 2023
 
 @author: aurelienb
 """
-from dl_for_mic.measure_division_fromtrackmate import measure_cellarea_before_division, build_lineage, get_division_speeds
+from proced_deepseg.measure_division_fromtrackmate import measure_cellarea_before_division, build_lineage, get_division_speeds
 
 import glob
 import os
