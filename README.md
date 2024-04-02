@@ -2,7 +2,7 @@
 
 A collection of Python scripts to perform deep-learning segmentation of bacterial cells and the analysis of the corresponding results.
 
-![Growth of S. pneumoniae cells automatically monitored with deep learning](https://github.com/aurelien-barbotin/proced-deepseg/blob/main/illustrations/illustration_1-1.gif)
+![Growth of S. pneumoniae cells automatically monitored with deep learning](https://github.com/aurelien-barbotin/proced-deepseg/blob/main/illustration/illustration_1-1.gif)
 
 Contains scripts for image segmentation and segmentation analysis. Image segmentation is performed using one of three models:
  - Cellpose: either the general model, or our home-trained model on B. subtilis images labeled with NileRed
