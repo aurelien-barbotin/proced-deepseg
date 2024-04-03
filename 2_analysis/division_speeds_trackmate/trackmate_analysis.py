@@ -16,7 +16,7 @@ if not os.path.isdir(datapath):
     os.mkdir(datapath)
     
 folders=glob.glob(datapath+"/*/")
-pixel_size= float(input("Please enter pixel isze in microns: "))
+pixel_size= float(input("Please enter pixel size in microns: "))
 for folder in folders:
     
     print(folder)
@@ -25,5 +25,5 @@ for folder in folders:
     path_edges=list(filter(lambda x: "edges" in os.path.split(x)[-1],excels))[0]
     path_spots=list(filter(lambda x: "spots" in os.path.split(x)[-1],excels))[0]
     new_name=list(filter(lambda x: x!="",folder.split(os.sep)))[-1].replace(' ','_')
-    df= measure_cellarea_before_division(path_stack,path_spots,path_edges,psize=pixel_size,
+    df = measure_cellarea_before_division(path_stack,path_spots,path_edges,psize=pixel_size,
                                         savename=folder+'../'+new_name+"_cellarea_vs_division.xlsx")
