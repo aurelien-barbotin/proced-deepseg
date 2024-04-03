@@ -19,7 +19,7 @@ To run omnipose segmentation, choose the subfolder 1_segmentation/omnipose. Plac
 Phase-contrast images of S. pneumoniae by Dimitri Juillot.
 
 Input |Segmented image
-:---------------------------:|:-------------------------:|:-------------------------:
+:---------------------------:|:-------------------------:
 ![Image of S. pneumoniae](https://github.com/aurelien-barbotin/proced-deepseg/blob/main/illustration/segmentation/omnipose_raw.png) | ![Segmentation of S. pneumoniae image](https://github.com/aurelien-barbotin/proced-deepseg/blob/main/illustration/segmentation/omnipose_segmented.png)
 
 model name: 'bact_phase_omni'
@@ -28,7 +28,7 @@ model name: 'bact_phase_omni'
 P. aeruginosa cells by Merve Nur Tunc
 
 Input |Segmented image
-:---------------------------:|:-------------------------:|:-------------------------:
+:---------------------------:|:-------------------------:
 ![Image of S. pneumoniae](https://github.com/aurelien-barbotin/proced-deepseg/blob/main/illustration/segmentation/omnipose_fluo_raw.png) | ![Segmentation of S. pneumoniae image](https://github.com/aurelien-barbotin/proced-deepseg/blob/main/illustration/segmentation/omnipose_fluo_segmented.png)
 
 ## Cellpose
