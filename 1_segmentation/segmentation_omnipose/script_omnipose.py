@@ -19,6 +19,15 @@ import glob
 import tifffile
 use_GPU = core.use_gpu()
 
+models_dict = {1:'bact_phase_omni',
+               2: 'bact_fluor_cp3'}
+
+model_nr = -1
+kk=models_dict.keys()
+while model_nr not in kk:
+    model_nr = int(input("""Please enter a model number between {} and {}. 
+         1: phase contrast, 2: fluorescence:\n""".format(min(kk),max(kk))))
+         
 datapath="to_process/"
 if not os.path.isdir(datapath):
     os.mkdir(datapath)
@@ -44,16 +53,12 @@ print('number of images:',nimg)
 for k in range(len(imgs)):
     imgs[k] = normalize99(imgs[k])
     
-from cellpose_omni.models import MODEL_NAMES
-
 
 savepath=datapath+"masks/"
 if not os.path.isdir(savepath):
     os.mkdir(datapath+"masks/")
     
-print(MODEL_NAMES)
-
-model_name = 'bact_phase_omni'
+model_name = models_dict[model_nr]
 model = models.CellposeModel(gpu=use_GPU, model_type=model_name)
 
 chans = [0,0] #this means segment based on first channel, no second channel 

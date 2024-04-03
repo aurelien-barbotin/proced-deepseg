@@ -12,5 +12,24 @@ Example input | Corresponding output, viewed in ImageJ | Overlay between raw dat
 You can now inspect and if necessary edit the masks using the dedicated [napari plugin](https://github.com/aurelien-barbotin/napari-segment-update). It is also possible to use ImageJ but Napari is more convenient. IF necessary, simply do not forget to convert you masks to labels within Napari (if Napari does not display labels as colors).
 
 ## Omnipose
+To run omnipose segmentation, choose the subfolder 1_segmentation/omnipose. Place your datasets in the subfolder to_process and press run. You will be asked which model to choose by picking a number: 1 for phase contrast and 2 for fluorescence. Below are some examples.
+
+### Phase contrast
+
+Phase-contrast images of S. pneumoniae by Dimitri Juillot.
+
+Input |Segmented image
+:---------------------------:|:-------------------------:|:-------------------------:
+![Image of S. pneumoniae](https://github.com/aurelien-barbotin/proced-deepseg/blob/main/illustration/segmentation/omnipose_raw.png) | ![Segmentation of S. pneumoniae image](https://github.com/aurelien-barbotin/proced-deepseg/blob/main/illustration/segmentation/omnipose_segmented.png)
+
+model name: 'bact_phase_omni'
+
+### Fluorescence
+P. aeruginosa cells by Merve Nur Tunc
+
+Input |Segmented image
+:---------------------------:|:-------------------------:|:-------------------------:
+![Image of S. pneumoniae](https://github.com/aurelien-barbotin/proced-deepseg/blob/main/illustration/segmentation/omnipose_fluo_raw.png) | ![Segmentation of S. pneumoniae image](https://github.com/aurelien-barbotin/proced-deepseg/blob/main/illustration/segmentation/omnipose_fluo_segmented.png)
 
 ## Cellpose
+Segmentation with cellpose is for now used only together with a custom model we developed with Louise Destouches. To segment B. subtilis cells in exponential phase, labeled with NileRed. 2 models are available: one trained on healthy cells, the other on cells targetted by antibiotics.

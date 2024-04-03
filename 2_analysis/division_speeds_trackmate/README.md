@@ -1,5 +1,6 @@
 ## Cell tracking and division speed extraction
 Input: a segmented stack. Optionally: the original dataset
+
 Output: Division times for each cell that was detected, and cell sizes before division. Stored in Excel files.
 
 ## Tracking
