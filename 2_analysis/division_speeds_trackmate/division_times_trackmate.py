@@ -46,10 +46,10 @@ for folder in folders:
     savename=folder+'../'+new_name+"_division_times.xlsx"
     df.to_excel(savename)
     if len(path_stack)>1:
-        print('Making illustrative video...')
-        path_mask = [w for w in path_stack if w[-12:]=='cp_masks.tif']
-        path_rawstack = [w for w in path_stack if w[-12:]!='cp_masks.tif']
+        path_mask = [w for w in path_stack if 'cp_masks' in w]
+        path_rawstack = [w for w in path_stack if 'cp_masks' not in w]
         if len(path_mask)==1 and len(path_rawstack)==1:
+            print('Making illustrative video...')
             stack = imread(path_rawstack[0])
             masks = imread(path_mask[0])
             out_stack = make_tracking_video(stack,masks,path_edges,path_spots)
