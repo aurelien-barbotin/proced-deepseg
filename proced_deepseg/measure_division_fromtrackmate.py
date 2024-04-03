@@ -32,7 +32,8 @@ def find_next_division(root,G, return_path=False):
                 return successors
         # print("level",level)
         current = successors
-        path.extend(current)
+        if return_path:
+            path.extend(current)
     if return_path:
         return [],[]
     else:

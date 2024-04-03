@@ -8,12 +8,11 @@ Created on Thu Jun 29 10:01:04 2023
 Scripts used to annotate tracking videos. The main method is make_tracking_video
 """
 
-from proced_deepseg.measure_division_fromtrackmate import (measure_cellarea_before_division,
-                                   build_lineage, get_division_speeds,get_division_speeds)
+from proced_deepseg.measure_division_fromtrackmate import (
+                                   get_division_speeds)
 
 import glob
 import os
-import matplotlib.pyplot as plt
 import pandas as pd
 import numpy as np
 from tifffile import imread, imwrite

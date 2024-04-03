@@ -13,10 +13,10 @@ if os.path.isfile(requirementPath):
         install_requires = f.read().splitlines()
         
 setuptools.setup(
-    name="proced-deepseg", # Replace with your own username
+    name="proced_deepseg", # Replace with your own username
     version="1",
     author="Aurélien Barbotin",
-    description="Useful stuff to use deep learning in bacteria",
+    description="Collection of scripts to use deep learning models for segmentation and analysis of bacterial images.",
     long_description=long_description,
     long_description_content_type="text/markdown",
     classifiers=[
