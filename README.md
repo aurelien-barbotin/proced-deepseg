@@ -10,8 +10,8 @@ This offers workflows for
  - Image segmentation (folder 1_segmentation)
  - (optional) postprocessing (folder 1b_postprocessing): to remove masks on the edge of an image
  - Segmentation analysis (folder 2_analysis): to extract doubling times (requires extra processing on trackmate) or cell morpholgy
-
-Scripts to run submethods are located in corresponding subfolders. For instance, to run segmentation with omnipose, copy the images to process in the folder 1_segmentation/omnipose/to_process/ (create it if it does not exist). Then double click on `run_segmentation.bat`. A terminal should open which gives update on the progress.
+ 
+An up-to-date list of protocols achievable with this program is available [here](https://github.com/aurelien-barbotin/proced-deepseg/blob/main/protocols/). Scripts to run submethods (e.g segmentation) are located in corresponding subfolders. For instance, to run segmentation with omnipose, copy the images to process in the folder 1_segmentation/omnipose/to_process/ (create it if it does not exist). Then double click on `run_segmentation.bat`. A terminal should open which gives update on the progress.
 
 Information can be extracted from masks using scripts in 2_analysis. This information can be either the cellular morphology (and its variation with frames) or cellular doubling times. Extraction of doubling times requires tracking with Trackmate, a plugin available in Fiji. A complete protocol and exemple for cellular doubling time extraction can be found here:
 
