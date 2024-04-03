@@ -1,7 +1,6 @@
 **__pycache__**
 *.egg_info
 **.tif
-**.png
 **.xlsx
 **.mat
 **.pkl
