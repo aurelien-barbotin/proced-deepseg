@@ -126,7 +126,10 @@ def build_track_graph(df,trn,minsize=3):
 
 def get_division_speeds(path, minsize=3, return_track=False):
     """reads a csv file from trackmate (edges), calculates the corresponding 
-    graph and measures division time. Returns frames pairs (frame for div 1, time until division)"""
+    graph and measures division time. Returns frames pairs (frame for div 1, time until division)
+    Parameters:
+    Returns:
+        dict"""
     df = pd.read_csv(path)
     
     nrem = 3
@@ -137,6 +140,7 @@ def get_division_speeds(path, minsize=3, return_track=False):
     
     # building the graph
     out_divtimes = {}
+    out_first_divtimes = {}
     all_tracks=[]
     for trn in track_vals:
         
@@ -150,15 +154,22 @@ def get_division_speeds(path, minsize=3, return_track=False):
             
         assert len(root_node)==1
         root_node = root_node[0]
-        
+        print("root node",graph.nodes[root_node]['frame'])
         # from https://stackoverflow.com/questions/69465397/iterating-over-nodes-of-a-networkx-digraph-in-order
-
+        # This info is already extraccted below so no need to do it here.
+        """# extracting time before first division
+        divs_tmp = find_next_division(root_node,graph, return_path=False)
+        last_before_split = get_predecessor(divs_tmp,graph)
+        t_root = graph.nodes[root_node]['frame']
+        t_last = graph.nodes[last_before_split]['frame']
+        print("First division : track {}, troot {}, tlast {}".format(trn, t_root,t_last))"""
+        
         all_divs=[]
         divs=[root_node]
         sublevel = 0
         all_times=[]
         while len(divs)>0:
-            print('Sublevel',sublevel)
+            #print('Sublevel',sublevel)
             divs_tmp_list=[]
             for div in divs:
                 divs_tmp = find_next_division(div,graph, return_path=return_track)
@@ -180,10 +191,14 @@ def get_division_speeds(path, minsize=3, return_track=False):
             sublevel+=1
         # eliminate first division
         out_divtimes[trn] = all_times[1:]
+        # some cells appear during acquisition, for instance if they grow in the FOV 
+        if len(all_times)>0 and all_times[0][0]==0: 
+            out_first_divtimes[trn] = all_times[0]
+    out_dict = {"div_times":out_divtimes,
+                "first_divtimes":out_first_divtimes}
     if return_track:
-        return out_divtimes, all_tracks
-    else:
-        return out_divtimes
+        out_dict["all_tracks"] = all_tracks
+    return out_dict
 
 def merge_times_dict(td):
     outx = []
@@ -437,39 +452,4 @@ def build_lineage(path_stack,path_spots,path_edges):
     growth_pairs =np.asarray(growth_pairs)
     plt.figure()
     plt.scatter(growth_pairs[:,0],growth_pairs[:,1])
-    
-if __name__=='__main__':
-    
-    plt.close('all')
-    
-    # csp -
-    path_stack1="""/run/user/1000/gvfs/smb-share:server=data.micalis.com,share=proced/\
-microscopy/NIKON/Dimitri/230428 contraste phase/ilastik images/masks/wt csp - stab-crop_cp_masks.tif"""
-    path_edges1 = "/home/aurelienb/Desktop/tmp/dimdim/wt csp-/edges_wt-_stab_crop.csv"
-    path_spots1="/home/aurelienb/Desktop/tmp/dimdim/wt csp-/spots_wt-_stab_crop.csv"
-
-    # csp+
-    path_edges2="/home/aurelienb/Desktop/tmp/dimdim/wt csp+/edges_wt csp+_stab_crop.csv"
-    path_spots2="/home/aurelienb/Desktop/tmp/dimdim/wt csp+/spots_wt csp+_stab_crop.csv"
-    path_stack2="""/run/user/1000/gvfs/smb-share:server=data.micalis.com,share=proced/\
-microscopy/NIKON/Dimitri/230428 contraste phase/ilastik images/masks/wt csp + \
-stab-crop-1 corrige_cp_masks.tif"""
-    
-    measure_cellarea_before_division(path_stack2, path_spots2, path_edges2)
-    plt.title('csp+')
-    
-    build_lineage(path_stack2, path_spots2, path_edges2)
-    plt.title('csp+')
-    build_lineage(path_stack1, path_spots1, path_edges1)
-    plt.title('csp-')
-    
-    """
-    measure_cellarea_before_division(path_stack1, path_spots1, path_edges1)
-    plt.title('csp -')
-    plt.savefig('/home/aurelienb/Desktop/tmp/dimdim/csp-.png')
-    measure_cellarea_before_division(path_stack2, path_spots2, path_edges2)
-    plt.title("csp+")
-    plt.savefig('/home/aurelienb/Desktop/tmp/dimdim/csp+.png')
-    # deliberate mistake
-    measure_cellarea_before_division(path_stack1, path_spots2, path_edges2)"""
     

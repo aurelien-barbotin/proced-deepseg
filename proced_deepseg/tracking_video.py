@@ -70,7 +70,8 @@ def make_tracking_video(stack_original,stack_labels,path_edges,path_spots):
         ndarray: a 4D (t, x, y, 3) array annotated with cell outlines and cell 
         divisions used for doubling times measurements.
         """
-    divs_speeds, tracks=get_division_speeds(path_edges,return_track=True)
+    div_speeds_dict=get_division_speeds(path_edges,return_track=True)
+    divs_speeds, tracks = div_speeds_dict['div_times'], div_speeds_dict['all_tracks']
     out=[]
     for k in divs_speeds.keys():
         divevs = divs_speeds[k]

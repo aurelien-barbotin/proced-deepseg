@@ -7,7 +7,7 @@ Created on Thu Jun 29 10:01:04 2023
 """
 
 from proced_deepseg.measure_division_fromtrackmate import (
-                                   get_division_speeds)
+                                   get_division_speeds,measure_cellarea_before_division)
 
 from proced_deepseg.tracking_video import make_tracking_video
 
@@ -34,7 +34,10 @@ for folder in folders:
     path_spots=list(filter(lambda x: "spots" in os.path.split(x)[-1],excels))[0]
     new_name=list(filter(lambda x: x!="",folder.split('/')))[-1].replace(' ','_')
     
-    divs_speeds=get_division_speeds(path_edges)
+    divs_speeds_dict=get_division_speeds(path_edges)
+    divs_speeds = divs_speeds_dict['div_times']
+    first_divtimes = divs_speeds_dict['first_divtimes']
+    out_firstdivtimes = []
     out=[]
     for k in divs_speeds.keys():
         divevs = divs_speeds[k]
@@ -45,15 +48,31 @@ for folder in folders:
     new_name=list(filter(lambda x: x!="",folder.split(os.sep)))[-1].replace(' ','_')
     savename=folder+'../'+new_name+"_division_times.xlsx"
     df.to_excel(savename)
+    
+    # First division times
+    first_divtimes = divs_speeds_dict['first_divtimes']
+    out_firstdivtimes = []
+    for k in first_divtimes.keys():
+        out_firstdivtimes.append(first_divtimes[k][1])
+        assert first_divtimes[k][0]==0
+    df_firstdivs=pd.DataFrame(out_firstdivtimes,columns=['First Division time'])
+    savename2=folder+'../'+new_name+"_first_division_times.xlsx"
+    df_firstdivs.to_excel(savename2)
+    
     if len(path_stack)>1:
-        path_mask = [w for w in path_stack if 'cp_masks' in w]
-        path_rawstack = [w for w in path_stack if 'cp_masks' not in w]
+        path_mask = [w for w in path_stack if 'cp_masks' in w][0]
+        path_rawstack = [w for w in path_stack if 'cp_masks' not in w][0]
         if len(path_mask)==1 and len(path_rawstack)==1:
             print('Making illustrative video...')
-            stack = imread(path_rawstack[0])
+            stack = imread(path_rawstack)
             masks = imread(path_mask[0])
             out_stack = make_tracking_video(stack,masks,path_edges,path_spots)
-            illustration_name = path_rawstack[0][:-4]
+            illustration_name = path_rawstack[:-4]
             if not os.path.isdir(illustration_name):
                 os.mkdir(illustration_name)
             imwrite(illustration_name+"/illustration.tif",out_stack)
+    
+    else:
+        path_mask=path_stack[0]
+    df = measure_cellarea_before_division(path_mask,path_spots,path_edges,psize=pixel_size,
+                                        savename=folder+'../'+new_name+"_cellarea_vs_division.xlsx")
