@@ -21,11 +21,11 @@ Information can be extracted from masks using scripts in 2_analysis. This inform
 
 This package contains several scripts that run in different virtual environments. Batch scripts can be found in subdirectories, which paths need to be updated when installed on a new computer. Installation of specific libraries within these virtualenvs is necessary. Virtual environments necessary to run these scripts include
 
-It is required to install dl_for_mic in a virtual environment, typically using anaconda:
+It is required to install proced_deepseg in a virtual environment, typically using anaconda:
 
 ```
-conda create -n dl_for_mic
-conda activate dl_for_mic
+conda create -n proced_deepseg_env python=3.11
+conda activate proced_deepseg_env
 pip install -e path
 ```
 
