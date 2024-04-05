@@ -37,4 +37,9 @@ To get this information, visit the folder **2_analysis/division_speeds_trackmate
 		
 ```
 
-Press **run**: a console appears, asking you about the pixel size (several times). Voilà! The results are stored in Excel files. You get both division times vs frame numbers and cell size before division.
+Press **run**: a console appears, asking you about the pixel size (several times). Voilà! The results are stored in Excel files. You get division times vs frame numbers, cell size before division, and time of first division. In more details:
+
+* cellarea_vs_division: this has two columns, 'frame' and 'area in µm2'. Each line corresponds to the state of a cell before division. For instance, if 'frame' value is 7 and  'area in µm2' is 50, it means that at frame 7 there is a cell with an area of 50µm² that divided in the next frame
+* division_times: this is the measure of the time interval between two divisions. It has also 2 columns, 'Frame' and 'Division time'. For instance, if 'frame' value is 9 and 'Division time' is 31, it means that a cell that appeared after a division at frame 9 divided again between frame 31 and 32.
+* first_division_times: this corresponds to the time at which cells present at the beginning of the acquisition divided for the first time.
+
