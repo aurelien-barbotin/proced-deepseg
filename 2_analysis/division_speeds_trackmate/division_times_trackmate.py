@@ -58,14 +58,16 @@ for folder in folders:
     df_firstdivs=pd.DataFrame(out_firstdivtimes,columns=['First Division time'])
     savename2=folder+'../'+new_name+"_first_division_times.xlsx"
     df_firstdivs.to_excel(savename2)
-    
+    print("path stack",path_stack)
     if len(path_stack)>1:
-        path_mask = [w for w in path_stack if 'cp_masks' in w][0]
-        path_rawstack = [w for w in path_stack if 'cp_masks' not in w][0]
+        path_mask = [w for w in path_stack if 'cp_masks' in w]
+        path_rawstack = [w for w in path_stack if 'cp_masks' not in w]
         if len(path_mask)==1 and len(path_rawstack)==1:
+            path_mask=path_mask[0]
+            path_rawstack=path_rawstack[0]
             print('Making illustrative video...')
             stack = imread(path_rawstack)
-            masks = imread(path_mask[0])
+            masks = imread(path_mask)
             out_stack = make_tracking_video(stack,masks,path_edges,path_spots)
             illustration_name = path_rawstack[:-4]
             if not os.path.isdir(illustration_name):
