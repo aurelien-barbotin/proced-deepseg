@@ -73,7 +73,6 @@ for folder in folders:
             if not os.path.isdir(illustration_name):
                 os.mkdir(illustration_name)
             imwrite(illustration_name+"/illustration.tif",out_stack)
-    
     else:
         path_mask=path_stack[0]
     df = measure_cellarea_before_division(path_mask,path_spots,path_edges,psize=pixel_size,

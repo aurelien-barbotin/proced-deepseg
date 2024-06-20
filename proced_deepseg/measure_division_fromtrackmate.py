@@ -361,12 +361,8 @@ def measure_cellarea_before_division(path_stack,path_spots,path_edges, psize=1,
         df.to_excel(savename)
     return df
 
-
-
 def build_lineage(path_stack,path_spots,path_edges):
-    
     stack = imread(path_stack)
-    
     nrem = 3
     # spots
     df_spots = pd.read_csv(path_spots)
