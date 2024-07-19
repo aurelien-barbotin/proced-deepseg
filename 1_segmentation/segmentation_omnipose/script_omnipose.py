@@ -82,6 +82,8 @@ all_masks = []
 all_flows = []
 all_styles=[]
 for j,img in enumerate(imgs):
+    if img.ndim==2:
+        img = img.reshape(1,*img.shape)
     print('Segmenting stack {}'.format(j))
     masks, flows, styles = model.eval([img[i] for i in range(img.shape[0])],
                                       channels=chans,

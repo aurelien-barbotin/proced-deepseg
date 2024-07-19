@@ -45,7 +45,7 @@ if os.path.isdir(subfolder):
     print("The filename already exists, please specify another one")
     sys.exit(0)
 os.mkdir(folder_out+subfolder+"/")
-files = glob.glob(folder_in+"*.czi*")
+files = glob.glob(folder_in+"*.tif")
 images = [imread(w) for w in files]
 images_2d = []
 images_3d = []
