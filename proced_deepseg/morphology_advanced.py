@@ -215,7 +215,8 @@ def get_dimensions_rect(msk, plot=False):
         cv2.imshow("mask and approximation",mask)
     return min(rect[1]), max(rect[1])
 
-def extract_morphology_from_movie(datapath, pixel_size=1, rep_keyword = None, min_mask_size = 3):
+def extract_morphology_from_movie(datapath, pixel_size=1, rep_keyword = None, 
+                                  min_mask_size = 3, method="rect"):
     """Given apath containing segmented movies, extracts cell morphology (width, length, area)
     using the rectangle method and saves results in an excel file.
     Parameters:
@@ -265,7 +266,16 @@ def extract_morphology_from_movie(datapath, pixel_size=1, rep_keyword = None, mi
                 msk = frame==val
                 if np.count_nonzero(msk)<min_mask_size:
                     continue
-                wt, lt = get_dimensions_rect(msk)
+                if method=="rect":
+                    wt, lt = get_dimensions_rect(msk)
+                elif method=="skel":
+                    try:
+                        wt,lt = cell_dimensions_skel(msk,plot_in_context=False)
+                    except Exception as e:
+                        print('skeleton extraction error',e)
+                        wt,lt = -1,-1
+                else:
+                    raise KeyError('Please select a valid selection method')
                 wt = wt*pixel_size
                 lt = lt*pixel_size
                 out_dict["widths [µm]"].append(wt)
