@@ -18,9 +18,8 @@ path="/home/aurelienb/Documents/Projects/2022_02_Louise/models/"
 models_path = {1:
   "Cellpose_GM_FINAL/cellpose_residual_on_style_on_concatenation_off_train_folder_2022_05_18_13_33_18.490485",
           2:
-  "Cellpose_MIX_FINAL/cellpose_residual_on_style_on_concatenation_off_train_folder_2022_05_25_07_47_36.630602"}
-
-
+  "Cellpose_MIX_FINAL/cellpose_residual_on_style_on_concatenation_off_train_folder_2022_05_25_07_47_36.630602",
+  3: None}
 
 folder_in = "to_process/"
 folder_out = "results/"
@@ -29,9 +28,11 @@ model_nr = -1
 kk=models_path.keys()
 while model_nr not in kk:
     model_nr = int(input("""Please enter a model number between {} and {}. 
-         1: cellpose general, 2: cellpose with antibio,""".format(min(kk),max(kk))))
+         1: cellpose general, 2: cellpose with antibio, 3: Default (cyto3)\n""".format(min(kk),max(kk))))
 
-QC_model_path = path + models_path[model_nr]
+model_name = models_path[model_nr]
+QC_model_path = path + str(model_name)
+
 if not os.path.isdir(folder_in):
     os.mkdir(folder_in)
     
@@ -64,16 +65,21 @@ for file in files:
 
 channels=[[0,0]]
 
-model = models.CellposeModel(gpu=False, pretrained_model=QC_model_path,
-                             diam_mean=30.0, net_avg=True, device=None, 
-                             residual_on=True, style_on=True, concatenation=False)
-
-out = model.eval(images_2d, diameter=None, channels=channels)
 # masks, flows, styles, diams
 
-masks, flows, styles = out
 
 for j in range(len(files2d)):
+    if model_name is not None:
+        model = models.CellposeModel(gpu=False, pretrained_model=QC_model_path,
+                                     diam_mean=30.0, net_avg=True, device=None, 
+                                     residual_on=True, style_on=True, concatenation=False)
+        out = model.eval(images_2d, diameter=None, channels=channels)
+        masks, flows, styles = out
+    else:
+        model = models.Cellpose(gpu=True, model_type="cyto3")
+        if len(images_2d)>0:
+            masks, flows, styles, diams = model.eval(images_2d, diameter=0, channels=channels,
+                                                  niter=2000) # using more iterations for bacteria
     name = files2d[j].split(os.sep)[-1].split('.')[0]
     out_name = folder_out+subfolder+"/"+name+'_mask.tif'
     mask = masks[j]
@@ -81,8 +87,13 @@ for j in range(len(files2d)):
 
 for j,images in enumerate(images_3d):
     print('Processing images 3D',images.shape)
-    out = model.eval([w for w in images], diameter=None, channels=channels)
-    masks, flows, styles = out
+    if model_name is not None:
+        out = model.eval([w for w in images], diameter=None, channels=channels)
+        masks, flows, styles = out
+    else:
+        masks, flows, styles, diams = model.eval([w for w in images], diameter=0, channels=channels,
+                                                  niter=2000) # using more iterations for bacteria
+    
     print(len(masks))
     name = files3d[j].split(os.sep)[-1].split('.')[0]
     subdir = folder_out+subfolder+"/"+name+'_mask'
