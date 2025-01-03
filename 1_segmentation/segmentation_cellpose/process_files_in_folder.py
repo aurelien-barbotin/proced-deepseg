@@ -59,12 +59,11 @@ for file in files:
         images_2d.append(im)
         files2d.append(file)
     elif im.ndim==3:
-        
         images_3d.append(im)
         files3d.append(file)
 
 channels=[[0,0]]
-
+print(len(images_2d),len(images_3d))
 # masks, flows, styles, diams
 
 
@@ -91,6 +90,7 @@ for j,images in enumerate(images_3d):
         out = model.eval([w for w in images], diameter=None, channels=channels)
         masks, flows, styles = out
     else:
+        model = models.Cellpose(gpu=True, model_type="cyto3")
         masks, flows, styles, diams = model.eval([w for w in images], diameter=0, channels=channels,
                                                   niter=2000) # using more iterations for bacteria
     
