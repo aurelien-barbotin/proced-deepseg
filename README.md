@@ -1,5 +1,7 @@
 # proced-deepseg
 
+[![DOI](https://zenodo.org/badge/459509999.svg)](https://doi.org/10.5281/zenodo.15384360)
+
 A collection of Python scripts to perform deep-learning segmentation of bacterial cells and corresponding analysis. These scripts are mainly intended for members of the ProCeD lab who don't code, but can be used by others.
 
 ![Growth of S. pneumoniae cells automatically monitored with deep learning](https://github.com/aurelien-barbotin/proced-deepseg/blob/main/illustration/illustration_1-1.gif)
